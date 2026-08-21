@@ -1,28 +1,34 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-
+from backend.services.project_analyzer import analyze_project as analyze_project_service
 router = APIRouter()
+
+class ProjectAnalysisRequest(BaseModel):
+    project_name: str
+    description: str
+    code: str
+
+class AnalysisResult(BaseModel):
+    project_name: str
+    status: str
+    summary: str
+    findings: list[str]
 
 
 @router.get("/")
 def home():
     return {"message": "Maintainer Agent is running"}
 
-
 @router.get("/health")
 def health():
     return {"status": "healthy"}
 
+@router.post("/analyze", response_model=AnalysisResult)
+def analyze_project_endpoint(request: ProjectAnalysisRequest):
+    return analyze_project_service(
+        project_name=request.project_name,
+        description=request.description,
+        code=request.code,
+    )
 
-class ProjectAnalysisRequest(BaseModel):
-    project_name: str
-    description: str
 
-@router.post("/analyze")
-def analyze_project(request: ProjectAnalysisRequest):
-    return {
-        "project_name": request.project_name,
-        "status": "received",
-        "message": "The Maintainer Agent is ready to analyze this project.",
-    }
