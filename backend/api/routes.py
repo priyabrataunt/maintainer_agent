@@ -6,6 +6,7 @@ router = APIRouter()
 class ProjectAnalysisRequest(BaseModel):
     project_name: str
     description: str
+    file_path: str
     code: str
 
 class AnalysisResult(BaseModel):
@@ -28,6 +29,7 @@ def analyze_project_endpoint(request: ProjectAnalysisRequest):
     return analyze_project_service(
         project_name=request.project_name,
         description=request.description,
+        file_path= request.file_path,
         code=request.code,
     )
 

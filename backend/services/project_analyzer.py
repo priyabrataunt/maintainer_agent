@@ -1,24 +1,26 @@
 def analyze_project(
     project_name: str,
     description: str,
+    file_path:str,
     code: str,
 ):
     findings = []
 
     if "TODO" in code:
-        findings.append("TODO comment found. Decide whether it still needs work.")
-
+        findings.append(
+            f"{file_path}: TODO comment found. Decide whether it still needs work."
+        )
     if "except:" in code:
         findings.append(
-            "Bare except found. Catch a specific exception where possible."
+            f"{file_path}: Bare except found. Catch a specific exception where possible."
         )
 
     if not findings:
-        findings.append("No simple issues found in this code snippet.")
+        findings.append(f"{file_path}: No simple issues found in this code snippet.")
 
     return {
         "project_name": project_name,
         "status": "complete",
-        "summary": f"Checked code submitted for: {description}",
+        "summary": f"Checked {file_path} code submitted for: {description}",
         "findings": findings,
     }
