@@ -1,9 +1,12 @@
 from typing import Literal
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from backend.services.project_analyzer import analyze_project as analyze_project_service
+from backend.services.project_analyzer import (
+    analyze_project as analyze_project_service,
+    analyze_project_folder as analyze_project_folder_service,
+)
 
 router = APIRouter()
 
@@ -19,6 +22,12 @@ class ProjectAnalysisRequest(BaseModel):
     file_path: str
     code: str
     files: list[SourceFile] = Field(default_factory=list)
+
+
+class ProjectFolderAnalysisRequest(BaseModel):
+    project_name: str
+    description: str
+    project_path: str = Field(min_length=1)
 
 
 class Finding(BaseModel):
@@ -54,3 +63,15 @@ def analyze_project_endpoint(request: ProjectAnalysisRequest):
         code=request.code,
         files=[file.model_dump() for file in request.files],
     )
+
+
+@router.post("/analyze-folder", response_model=AnalysisResult)
+def analyze_project_folder_endpoint(request: ProjectFolderAnalysisRequest):
+    try:
+        return analyze_project_folder_service(
+            project_name=request.project_name,
+            description=request.description,
+            project_path=request.project_path,
+        )
+    except (OSError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
