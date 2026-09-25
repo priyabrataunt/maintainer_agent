@@ -1,10 +1,11 @@
 import httpx
 
-from backend.ingestion.cli import main
+from backend.ingestion.github_client import get_repo
 
 
-def test_prints_owner_and_repo(capsys, monkeypatch):
+def test_get_repo_returns_parsed_json(monkeypatch):
     def fake_get(url, **kwargs):
+        assert url == "https://api.github.com/repos/octocat/hello-world"
         request = httpx.Request("GET", url)
         return httpx.Response(
             200,
@@ -18,9 +19,8 @@ def test_prints_owner_and_repo(capsys, monkeypatch):
 
     monkeypatch.setattr(httpx, "get", fake_get)
 
-    main(["--owner", "octocat", "--repo", "hello-world"])
+    data = get_repo("octocat", "hello-world")
 
-    captured = capsys.readouterr()
-    assert "octocat" in captured.out
-    assert "hello-world" in captured.out
-    assert "42" in captured.out
+    assert data["name"] == "hello-world"
+    assert data["description"] == "My first repo"
+    assert data["stargazers_count"] == 42

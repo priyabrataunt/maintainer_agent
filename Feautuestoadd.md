@@ -41,7 +41,7 @@ agent, eval). Phase 1 only needs `users`, `repositories`, and `issues`
     Instead of printing, write the fetched repo/issues/PRs/commits to
     local JSON files. This is the input the DB step below will load.
 
-1.1 is complete. Next feature: 1.2 — Fetch repo metadata.
+1.1 and 1.2 are complete. Next feature: 1.3 — Add auth + rate limits.
 
 ## 2. CRUD/backend API + database schema
 
@@ -165,7 +165,7 @@ Next feature: 8.1 — First manual deploy.
 
 ---
 
-Overall next action: 1.2 — Fetch repo metadata.
+Overall next action: 1.3 — Add auth + rate limits.
 
 ---
 
