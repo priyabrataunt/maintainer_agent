@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–1.7 complete. Next action: **1.8 — Typed models**.
+**Current position:** 1.1–1.8 complete. Next action: **1.9 — Fetch comments for one issue**.
 
 ---
 
@@ -36,7 +36,7 @@ Keep these in mind; they are already applied below.
 - [x] **1.5 Reuse one client** — a single `httpx.Client` inside a `with` block (context managers).
 - [x] **1.6 Fetch page 1 of issues** — print title and number. Skip any item with a `pull_request` key.
 - [x] **1.7 Paginate with a generator** — `iter_issues()` follows the `Link` header and yields one issue at a time (generators).
-- [ ] **1.8 Typed models** — convert raw dicts into `Repo` and `Issue` Pydantic models, keeping only the fields you need.
+- [x] **1.8 Typed models** — convert raw dicts into `Repo` and `Issue` Pydantic models, keeping only the fields you need.
 - [ ] **1.9 Fetch comments for one issue** — given an issue number, fetch and print its comments.
 - [ ] **1.10 Fetch PRs and commits** — reuse the generator. Add a `--limit` flag so big repos don't burn quota.
 - [ ] **1.11 Save to disk** — write to `data/{owner}_{repo}/*.json`. This is the input the DB loader reads.

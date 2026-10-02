@@ -1,6 +1,7 @@
 import httpx
 
 from backend.ingestion.github_client import GitHubClient
+from backend.ingestion.models import Issue, Repo
 
 REPO_JSON = {
     "name": "hello-world",
@@ -17,13 +18,14 @@ def handler(request: httpx.Request) -> httpx.Response:
     )
 
 
-def test_get_repo_returns_parsed_json_and_rate_limit():
+def test_get_repo_returns_repo_model_and_rate_limit():
     with GitHubClient(token="test-token", transport=httpx.MockTransport(handler)) as gh:
-        data, remaining = gh.get_repo("octocat", "hello-world")
+        repo, remaining = gh.get_repo("octocat", "hello-world")
 
-    assert data["name"] == "hello-world"
-    assert data["description"] == "My first repo"
-    assert data["stargazers_count"] == 42
+    assert isinstance(repo, Repo)
+    assert repo.name == "hello-world"
+    assert repo.description == "My first repo"
+    assert repo.stargazers_count == 42
     assert remaining == "4999"
 
 
@@ -59,4 +61,5 @@ def test_iter_issues_paginates_and_skips_pull_requests():
     ) as gh:
         issues = list(gh.iter_issues("octocat", "hello-world"))
 
-    assert [issue["number"] for issue in issues] == [1, 3]
+    assert all(isinstance(issue, Issue) for issue in issues)
+    assert [issue.number for issue in issues] == [1, 3]

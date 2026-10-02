@@ -16,14 +16,14 @@ def main(argv: list[str] | None = None) -> None:
     print(f"repo: {args.repo}")
 
     with GitHubClient() as github:
-        data, rate_limit_remaining = github.get_repo(args.owner, args.repo)
-        print(f"name: {data['name']}")
-        print(f"description: {data['description']}")
-        print(f"stars: {data['stargazers_count']}")
+        repo, rate_limit_remaining = github.get_repo(args.owner, args.repo)
+        print(f"name: {repo.name}")
+        print(f"description: {repo.description}")
+        print(f"stars: {repo.stargazers_count}")
         print(f"rate limit remaining: {rate_limit_remaining}")
 
         for issue in github.iter_issues(args.owner, args.repo):
-            print(f"#{issue['number']} {issue['title']}")
+            print(f"#{issue.number} {issue.title}")
 
 
 if __name__ == "__main__":

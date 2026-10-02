@@ -3,6 +3,7 @@ from collections.abc import Iterator
 import httpx
 
 from backend.config import settings
+from backend.ingestion.models import Issue, Repo
 
 GITHUB_API_URL = "https://api.github.com"
 
@@ -41,13 +42,15 @@ class GitHubClient:
     def __exit__(self, *exc_info) -> None:
         self._client.close()
 
-    def get_repo(self, owner: str, repo: str) -> tuple[dict, str | None]:
-        """Return the repo JSON and the remaining GitHub rate-limit quota."""
+    def get_repo(self, owner: str, repo: str) -> tuple[Repo, str | None]:
+        """Return the repo and the remaining GitHub rate-limit quota."""
         response = self._client.get(f"/repos/{owner}/{repo}")
         response.raise_for_status()
-        return response.json(), response.headers.get("X-RateLimit-Remaining")
+        return Repo.model_validate(response.json()), response.headers.get(
+            "X-RateLimit-Remaining"
+        )
 
-    def iter_issues(self, owner: str, repo: str) -> Iterator[dict]:
+    def iter_issues(self, owner: str, repo: str) -> Iterator[Issue]:
         """Yield issues across all pages, skipping pull requests."""
         url = f"/repos/{owner}/{repo}/issues"
         while url:
@@ -55,5 +58,5 @@ class GitHubClient:
             response.raise_for_status()
             for item in response.json():
                 if "pull_request" not in item:
-                    yield item
+                    yield Issue.model_validate(item)
             url = parse_link_header(response.headers.get("Link")).get("next")
