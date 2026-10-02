@@ -10,3 +10,8 @@ class Repo(BaseModel):
 class Issue(BaseModel):
     number: int
     title: str
+
+
+class Comment(BaseModel):
+    user_login: str
+    body: str

@@ -1,7 +1,7 @@
 import httpx
 
 from backend.ingestion.github_client import GitHubClient
-from backend.ingestion.models import Issue, Repo
+from backend.ingestion.models import Comment, Issue, Repo
 
 REPO_JSON = {
     "name": "hello-world",
@@ -63,3 +63,30 @@ def test_iter_issues_paginates_and_skips_pull_requests():
 
     assert all(isinstance(issue, Issue) for issue in issues)
     assert [issue.number for issue in issues] == [1, 3]
+
+
+COMMENTS_URL = "https://api.github.com/repos/octocat/hello-world/issues/1/comments"
+
+
+def comments_handler(request: httpx.Request) -> httpx.Response:
+    assert request.headers["Authorization"] == "Bearer test-token"
+    assert str(request.url) == COMMENTS_URL
+    return httpx.Response(
+        200,
+        json=[
+            {"user": {"login": "alice"}, "body": "Can you share a stack trace?"},
+            {"user": {"login": "bob"}, "body": "Happens on Windows too."},
+        ],
+    )
+
+
+def test_get_issue_comments_returns_comment_models():
+    with GitHubClient(
+        token="test-token", transport=httpx.MockTransport(comments_handler)
+    ) as gh:
+        comments = gh.get_issue_comments("octocat", "hello-world", 1)
+
+    assert all(isinstance(comment, Comment) for comment in comments)
+    assert comments[0].user_login == "alice"
+    assert comments[0].body == "Can you share a stack trace?"
+    assert comments[1].user_login == "bob"

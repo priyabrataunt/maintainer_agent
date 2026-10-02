@@ -3,7 +3,7 @@ from collections.abc import Iterator
 import httpx
 
 from backend.config import settings
-from backend.ingestion.models import Issue, Repo
+from backend.ingestion.models import Comment, Issue, Repo
 
 GITHUB_API_URL = "https://api.github.com"
 
@@ -60,3 +60,12 @@ class GitHubClient:
                 if "pull_request" not in item:
                     yield Issue.model_validate(item)
             url = parse_link_header(response.headers.get("Link")).get("next")
+
+    def get_issue_comments(self, owner: str, repo: str, issue_number: int) -> list[Comment]:
+        """Return all comments for one issue."""
+        response = self._client.get(f"/repos/{owner}/{repo}/issues/{issue_number}/comments")
+        response.raise_for_status()
+        return [
+            Comment(user_login=item["user"]["login"], body=item["body"])
+            for item in response.json()
+        ]

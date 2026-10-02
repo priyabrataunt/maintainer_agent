@@ -7,6 +7,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Ingest a GitHub repository.")
     parser.add_argument("--owner", required=True, help="GitHub repository owner")
     parser.add_argument("--repo", required=True, help="GitHub repository name")
+    parser.add_argument("--issue", type=int, help="Issue number to fetch comments for")
     return parser
 
 
@@ -24,6 +25,10 @@ def main(argv: list[str] | None = None) -> None:
 
         for issue in github.iter_issues(args.owner, args.repo):
             print(f"#{issue.number} {issue.title}")
+
+        if args.issue is not None:
+            for comment in github.get_issue_comments(args.owner, args.repo, args.issue):
+                print(f"{comment.user_login}: {comment.body}")
 
 
 if __name__ == "__main__":
