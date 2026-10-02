@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from datetime import datetime, timezone
 
 import httpx
 
@@ -6,6 +7,14 @@ from backend.config import settings
 from backend.ingestion.models import Comment, Commit, Issue, PullRequest, Repo
 
 GITHUB_API_URL = "https://api.github.com"
+
+
+class RateLimitExceeded(Exception):
+    """Raised when GitHub's rate limit quota has hit zero."""
+
+    def __init__(self, reset_at: datetime) -> None:
+        self.reset_at = reset_at
+        super().__init__(f"GitHub rate limit exceeded; resets at {reset_at.isoformat()}")
 
 
 def parse_link_header(header: str | None) -> dict[str, str]:
@@ -42,10 +51,20 @@ class GitHubClient:
     def __exit__(self, *exc_info) -> None:
         self._client.close()
 
+    def _get(self, url: str) -> httpx.Response:
+        """GET `url`, raising RateLimitExceeded if the quota just hit zero."""
+        response = self._client.get(url)
+        if response.status_code == 403 and response.headers.get("X-RateLimit-Remaining") == "0":
+            reset_at = datetime.fromtimestamp(
+                int(response.headers["X-RateLimit-Reset"]), tz=timezone.utc
+            )
+            raise RateLimitExceeded(reset_at)
+        response.raise_for_status()
+        return response
+
     def get_repo(self, owner: str, repo: str) -> tuple[Repo, str | None]:
         """Return the repo and the remaining GitHub rate-limit quota."""
-        response = self._client.get(f"/repos/{owner}/{repo}")
-        response.raise_for_status()
+        response = self._get(f"/repos/{owner}/{repo}")
         return Repo.model_validate(response.json()), response.headers.get(
             "X-RateLimit-Remaining"
         )
@@ -53,8 +72,7 @@ class GitHubClient:
     def _iter_pages(self, url: str) -> Iterator[dict]:
         """Yield raw JSON items across all pages, following the `Link` header."""
         while url:
-            response = self._client.get(url)
-            response.raise_for_status()
+            response = self._get(url)
             yield from response.json()
             url = parse_link_header(response.headers.get("Link")).get("next")
 
@@ -76,8 +94,7 @@ class GitHubClient:
 
     def get_issue_comments(self, owner: str, repo: str, issue_number: int) -> list[Comment]:
         """Return all comments for one issue."""
-        response = self._client.get(f"/repos/{owner}/{repo}/issues/{issue_number}/comments")
-        response.raise_for_status()
+        response = self._get(f"/repos/{owner}/{repo}/issues/{issue_number}/comments")
         return [
             Comment(user_login=item["user"]["login"], body=item["body"])
             for item in response.json()

@@ -1,6 +1,9 @@
-import httpx
+import json
 
-from backend.ingestion import cli
+import httpx
+import pytest
+
+from backend.ingestion import cli, storage
 from backend.ingestion.github_client import GitHubClient
 
 
@@ -116,3 +119,67 @@ def test_limit_caps_pull_requests_and_commits(capsys, monkeypatch):
     assert "PR #2 PR two" not in captured.out
     assert "aaa111 first" in captured.out
     assert "bbb222 second" not in captured.out
+
+
+def test_saves_fetched_data_to_disk(tmp_path, monkeypatch):
+    monkeypatch.setattr(storage, "DATA_DIR", tmp_path)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/issues"):
+            return httpx.Response(
+                200,
+                json=[{"number": 1, "title": "Bug: crashes on startup"}],
+                headers={"X-RateLimit-Remaining": "4999"},
+            )
+        if request.url.path.endswith("/pulls"):
+            return httpx.Response(200, json=[{"number": 7, "title": "Fix typo"}])
+        if request.url.path.endswith("/commits"):
+            return httpx.Response(
+                200, json=[{"sha": "abc123", "commit": {"message": "Initial"}}]
+            )
+        return httpx.Response(
+            200,
+            json={
+                "name": "hello-world",
+                "description": "My first repo",
+                "stargazers_count": 42,
+            },
+            headers={"X-RateLimit-Remaining": "4999"},
+        )
+
+    monkeypatch.setattr(
+        cli,
+        "GitHubClient",
+        lambda: GitHubClient(token="t", transport=httpx.MockTransport(handler)),
+    )
+
+    cli.main(["--owner", "octocat", "--repo", "hello-world"])
+
+    repo_dir = tmp_path / "octocat_hello-world"
+    assert json.loads((repo_dir / "repo.json").read_text())["name"] == "hello-world"
+    assert json.loads((repo_dir / "issues.json").read_text())[0]["number"] == 1
+    assert json.loads((repo_dir / "pull_requests.json").read_text())[0]["number"] == 7
+    assert json.loads((repo_dir / "commits.json").read_text())[0]["sha"] == "abc123"
+
+
+def test_exits_cleanly_when_rate_limit_exceeded(capsys, monkeypatch):
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            403,
+            json={"message": "API rate limit exceeded"},
+            headers={"X-RateLimit-Remaining": "0", "X-RateLimit-Reset": "1700000000"},
+        )
+
+    monkeypatch.setattr(
+        cli,
+        "GitHubClient",
+        lambda: GitHubClient(token="t", transport=httpx.MockTransport(handler)),
+    )
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.main(["--owner", "octocat", "--repo", "hello-world"])
+
+    assert exc_info.value.code == 1
+    captured = capsys.readouterr()
+    assert "rate limit exceeded" in captured.out.lower()
+    assert "2023-11-14" in captured.out

@@ -1,6 +1,9 @@
-import httpx
+from datetime import datetime, timezone
 
-from backend.ingestion.github_client import GitHubClient
+import httpx
+import pytest
+
+from backend.ingestion.github_client import GitHubClient, RateLimitExceeded
 from backend.ingestion.models import Comment, Commit, Issue, PullRequest, Repo
 
 REPO_JSON = {
@@ -139,3 +142,30 @@ def test_iter_commits_paginates():
     assert all(isinstance(commit, Commit) for commit in commits)
     assert [commit.sha for commit in commits] == ["abc123", "def456"]
     assert commits[0].message == "Initial commit\n\nbody"
+
+
+def rate_limited_handler(request: httpx.Request) -> httpx.Response:
+    return httpx.Response(
+        403,
+        json={"message": "API rate limit exceeded"},
+        headers={"X-RateLimit-Remaining": "0", "X-RateLimit-Reset": "1700000000"},
+    )
+
+
+def test_get_repo_raises_rate_limit_exceeded_when_quota_is_zero():
+    with GitHubClient(
+        token="test-token", transport=httpx.MockTransport(rate_limited_handler)
+    ) as gh:
+        with pytest.raises(RateLimitExceeded) as exc_info:
+            gh.get_repo("octocat", "hello-world")
+
+    assert exc_info.value.reset_at == datetime.fromtimestamp(1700000000, tz=timezone.utc)
+
+
+def test_other_403s_are_not_treated_as_rate_limit():
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(403, json={"message": "Forbidden"})
+
+    with GitHubClient(token="test-token", transport=httpx.MockTransport(handler)) as gh:
+        with pytest.raises(httpx.HTTPStatusError):
+            gh.get_repo("octocat", "hello-world")
