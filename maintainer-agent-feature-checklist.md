@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–1.9 complete. Next action: **1.10 — Fetch PRs and commits**.
+**Current position:** 1.1–1.10 complete. Next action: **1.11 — Save to disk**.
 
 ---
 
@@ -38,7 +38,7 @@ Keep these in mind; they are already applied below.
 - [x] **1.7 Paginate with a generator** — `iter_issues()` follows the `Link` header and yields one issue at a time (generators).
 - [x] **1.8 Typed models** — convert raw dicts into `Repo` and `Issue` Pydantic models, keeping only the fields you need.
 - [x] **1.9 Fetch comments for one issue** — given an issue number, fetch and print its comments.
-- [ ] **1.10 Fetch PRs and commits** — reuse the generator. Add a `--limit` flag so big repos don't burn quota.
+- [x] **1.10 Fetch PRs and commits** — reuse the generator. Add a `--limit` flag so big repos don't burn quota.
 - [ ] **1.11 Save to disk** — write to `data/{owner}_{repo}/*.json`. This is the input the DB loader reads.
 - [ ] **1.12 Handle rate-limit exhaustion** — when remaining hits 0, print the reset time and exit cleanly.
 - [ ] **1.13 First test** — pytest on the Link-header parser using a hardcoded string. No network.

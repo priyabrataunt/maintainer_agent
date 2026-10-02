@@ -15,3 +15,13 @@ class Issue(BaseModel):
 class Comment(BaseModel):
     user_login: str
     body: str
+
+
+class PullRequest(BaseModel):
+    number: int
+    title: str
+
+
+class Commit(BaseModel):
+    sha: str
+    message: str

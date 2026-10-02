@@ -1,7 +1,7 @@
 import httpx
 
 from backend.ingestion.github_client import GitHubClient
-from backend.ingestion.models import Comment, Issue, Repo
+from backend.ingestion.models import Comment, Commit, Issue, PullRequest, Repo
 
 REPO_JSON = {
     "name": "hello-world",
@@ -90,3 +90,52 @@ def test_get_issue_comments_returns_comment_models():
     assert comments[0].user_login == "alice"
     assert comments[0].body == "Can you share a stack trace?"
     assert comments[1].user_login == "bob"
+
+
+PULLS_URL = "https://api.github.com/repos/octocat/hello-world/pulls"
+
+
+def pulls_handler(request: httpx.Request) -> httpx.Response:
+    assert str(request.url) == PULLS_URL
+    return httpx.Response(
+        200, json=[{"number": 7, "title": "Fix typo in README"}]
+    )
+
+
+def test_iter_pull_requests_returns_pull_request_models():
+    with GitHubClient(
+        token="test-token", transport=httpx.MockTransport(pulls_handler)
+    ) as gh:
+        prs = list(gh.iter_pull_requests("octocat", "hello-world"))
+
+    assert all(isinstance(pr, PullRequest) for pr in prs)
+    assert prs[0].number == 7
+    assert prs[0].title == "Fix typo in README"
+
+
+COMMITS_PAGE_1_URL = "https://api.github.com/repos/octocat/hello-world/commits"
+COMMITS_PAGE_2_URL = "https://api.github.com/repos/octocat/hello-world/commits?page=2"
+
+
+def paginated_commits_handler(request: httpx.Request) -> httpx.Response:
+    if str(request.url) == COMMITS_PAGE_1_URL:
+        return httpx.Response(
+            200,
+            json=[{"sha": "abc123", "commit": {"message": "Initial commit\n\nbody"}}],
+            headers={"Link": f'<{COMMITS_PAGE_2_URL}>; rel="next"'},
+        )
+    assert str(request.url) == COMMITS_PAGE_2_URL
+    return httpx.Response(
+        200, json=[{"sha": "def456", "commit": {"message": "Fix bug"}}]
+    )
+
+
+def test_iter_commits_paginates():
+    with GitHubClient(
+        token="test-token", transport=httpx.MockTransport(paginated_commits_handler)
+    ) as gh:
+        commits = list(gh.iter_commits("octocat", "hello-world"))
+
+    assert all(isinstance(commit, Commit) for commit in commits)
+    assert [commit.sha for commit in commits] == ["abc123", "def456"]
+    assert commits[0].message == "Initial commit\n\nbody"

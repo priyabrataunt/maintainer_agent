@@ -3,7 +3,7 @@ from collections.abc import Iterator
 import httpx
 
 from backend.config import settings
-from backend.ingestion.models import Comment, Issue, Repo
+from backend.ingestion.models import Comment, Commit, Issue, PullRequest, Repo
 
 GITHUB_API_URL = "https://api.github.com"
 
@@ -50,16 +50,29 @@ class GitHubClient:
             "X-RateLimit-Remaining"
         )
 
-    def iter_issues(self, owner: str, repo: str) -> Iterator[Issue]:
-        """Yield issues across all pages, skipping pull requests."""
-        url = f"/repos/{owner}/{repo}/issues"
+    def _iter_pages(self, url: str) -> Iterator[dict]:
+        """Yield raw JSON items across all pages, following the `Link` header."""
         while url:
             response = self._client.get(url)
             response.raise_for_status()
-            for item in response.json():
-                if "pull_request" not in item:
-                    yield Issue.model_validate(item)
+            yield from response.json()
             url = parse_link_header(response.headers.get("Link")).get("next")
+
+    def iter_issues(self, owner: str, repo: str) -> Iterator[Issue]:
+        """Yield issues across all pages, skipping pull requests."""
+        for item in self._iter_pages(f"/repos/{owner}/{repo}/issues"):
+            if "pull_request" not in item:
+                yield Issue.model_validate(item)
+
+    def iter_pull_requests(self, owner: str, repo: str) -> Iterator[PullRequest]:
+        """Yield pull requests across all pages."""
+        for item in self._iter_pages(f"/repos/{owner}/{repo}/pulls"):
+            yield PullRequest.model_validate(item)
+
+    def iter_commits(self, owner: str, repo: str) -> Iterator[Commit]:
+        """Yield commits across all pages."""
+        for item in self._iter_pages(f"/repos/{owner}/{repo}/commits"):
+            yield Commit(sha=item["sha"], message=item["commit"]["message"])
 
     def get_issue_comments(self, owner: str, repo: str, issue_number: int) -> list[Comment]:
         """Return all comments for one issue."""
