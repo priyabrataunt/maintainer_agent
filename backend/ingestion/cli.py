@@ -1,6 +1,6 @@
 import argparse
 
-from backend.ingestion.github_client import get_repo
+from backend.ingestion.github_client import GitHubClient
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -15,10 +15,12 @@ def main(argv: list[str] | None = None) -> None:
     print(f"owner: {args.owner}")
     print(f"repo: {args.repo}")
 
-    data = get_repo(args.owner, args.repo)
+    with GitHubClient() as github:
+        data, rate_limit_remaining = github.get_repo(args.owner, args.repo)
     print(f"name: {data['name']}")
     print(f"description: {data['description']}")
     print(f"stars: {data['stargazers_count']}")
+    print(f"rate limit remaining: {rate_limit_remaining}")
 
 
 if __name__ == "__main__":

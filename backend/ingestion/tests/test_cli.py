@@ -1,11 +1,11 @@
 import httpx
 
-from backend.ingestion.cli import main
+from backend.ingestion import cli
+from backend.ingestion.github_client import GitHubClient
 
 
 def test_prints_owner_and_repo(capsys, monkeypatch):
-    def fake_get(url, **kwargs):
-        request = httpx.Request("GET", url)
+    def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(
             200,
             json={
@@ -13,14 +13,19 @@ def test_prints_owner_and_repo(capsys, monkeypatch):
                 "description": "My first repo",
                 "stargazers_count": 42,
             },
-            request=request,
+            headers={"X-RateLimit-Remaining": "4999"},
         )
 
-    monkeypatch.setattr(httpx, "get", fake_get)
+    monkeypatch.setattr(
+        cli,
+        "GitHubClient",
+        lambda: GitHubClient(token="t", transport=httpx.MockTransport(handler)),
+    )
 
-    main(["--owner", "octocat", "--repo", "hello-world"])
+    cli.main(["--owner", "octocat", "--repo", "hello-world"])
 
     captured = capsys.readouterr()
     assert "octocat" in captured.out
     assert "hello-world" in captured.out
     assert "42" in captured.out
+    assert "rate limit remaining: 4999" in captured.out
