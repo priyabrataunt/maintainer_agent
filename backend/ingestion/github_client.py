@@ -31,3 +31,9 @@ class GitHubClient:
         response = self._client.get(f"/repos/{owner}/{repo}")
         response.raise_for_status()
         return response.json(), response.headers.get("X-RateLimit-Remaining")
+
+    def get_issues(self, owner: str, repo: str) -> tuple[list[dict], str | None]:
+        """Return page 1 of issues (GitHub includes PRs here) and the rate-limit quota."""
+        response = self._client.get(f"/repos/{owner}/{repo}/issues")
+        response.raise_for_status()
+        return response.json(), response.headers.get("X-RateLimit-Remaining")

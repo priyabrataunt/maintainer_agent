@@ -32,3 +32,27 @@ def test_client_is_closed_after_with_block():
         pass
 
     assert gh._client.is_closed
+
+
+ISSUES_JSON = [
+    {"number": 1, "title": "Bug: crashes on startup"},
+    {"number": 2, "title": "PR: fix typo", "pull_request": {"url": "..."}},
+]
+
+
+def issues_handler(request: httpx.Request) -> httpx.Response:
+    assert request.headers["Authorization"] == "Bearer test-token"
+    assert str(request.url) == "https://api.github.com/repos/octocat/hello-world/issues"
+    return httpx.Response(
+        200, json=ISSUES_JSON, headers={"X-RateLimit-Remaining": "4998"}
+    )
+
+
+def test_get_issues_returns_parsed_json_and_rate_limit():
+    with GitHubClient(
+        token="test-token", transport=httpx.MockTransport(issues_handler)
+    ) as gh:
+        issues, remaining = gh.get_issues("octocat", "hello-world")
+
+    assert issues == ISSUES_JSON
+    assert remaining == "4998"

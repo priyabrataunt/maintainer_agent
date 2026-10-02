@@ -17,10 +17,16 @@ def main(argv: list[str] | None = None) -> None:
 
     with GitHubClient() as github:
         data, rate_limit_remaining = github.get_repo(args.owner, args.repo)
+        issues, rate_limit_remaining = github.get_issues(args.owner, args.repo)
     print(f"name: {data['name']}")
     print(f"description: {data['description']}")
     print(f"stars: {data['stargazers_count']}")
     print(f"rate limit remaining: {rate_limit_remaining}")
+
+    for issue in issues:
+        if "pull_request" in issue:
+            continue
+        print(f"#{issue['number']} {issue['title']}")
 
 
 if __name__ == "__main__":
