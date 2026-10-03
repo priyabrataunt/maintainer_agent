@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–1.13 complete. Next action: **2.1 — Postgres in compose**.
+**Current position:** 1.1–2.1 complete. Next action: **2.2 — FastAPI app + /health**.
 
 ---
 
@@ -45,7 +45,7 @@ Keep these in mind; they are already applied below.
 
 ## Week 2 — FastAPI + database
 
-- [ ] **2.1 Postgres in compose** — `docker-compose.yml` with only a `postgres` service, pgvector-enabled image.
+- [x] **2.1 Postgres in compose** — `docker-compose.yml` with only a `postgres` service, pgvector-enabled image.
 - [ ] **2.2 FastAPI app + `/health`** — create the app, add `GET /health`, test it with TestClient.
 - [ ] **2.3 DB session + DI** — SQLAlchemy engine, a `get_db` dependency (dependency injection practice), and `GET /db-health` running `SELECT 1`.
 - [ ] **2.4 Test DB fixture** — a separate `maintainer_test` Postgres database, rolled back after each test.
