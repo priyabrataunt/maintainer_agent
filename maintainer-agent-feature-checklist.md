@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–1.12 complete. Next action: **1.13 — First test (Link-header parser)**.
+**Current position:** 1.1–1.13 complete. Next action: **2.1 — Postgres in compose**.
 
 ---
 
@@ -41,7 +41,7 @@ Keep these in mind; they are already applied below.
 - [x] **1.10 Fetch PRs and commits** — reuse the generator. Add a `--limit` flag so big repos don't burn quota.
 - [x] **1.11 Save to disk** — write to `data/{owner}_{repo}/*.json`. This is the input the DB loader reads.
 - [x] **1.12 Handle rate-limit exhaustion** — when remaining hits 0, print the reset time and exit cleanly.
-- [ ] **1.13 First test** — pytest on the Link-header parser using a hardcoded string. No network.
+- [x] **1.13 First test** — pytest on the Link-header parser using a hardcoded string. No network.
 
 ## Week 2 — FastAPI + database
 
