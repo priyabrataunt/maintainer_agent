@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     )
 
     github_token: SecretStr
+    database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer"
+    test_database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test"
 
 
 settings = Settings()

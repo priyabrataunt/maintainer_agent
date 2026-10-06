@@ -1,8 +1,11 @@
 from typing import Literal
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
+from backend.db import get_db
 from backend.services.project_analyzer import (
     analyze_project as analyze_project_service,
     analyze_project_folder as analyze_project_folder_service,
@@ -51,6 +54,12 @@ def home():
 
 @router.get("/health")
 def health():
+    return {"status": "healthy"}
+
+
+@router.get("/db-health")
+def db_health(db: Session = Depends(get_db)):
+    db.execute(text("SELECT 1"))
     return {"status": "healthy"}
 
 

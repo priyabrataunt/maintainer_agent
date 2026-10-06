@@ -49,13 +49,29 @@ def paginated_issues_handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(
             200,
             json=[
-                {"number": 1, "title": "Bug: crashes on startup"},
+                {
+                    "number": 1,
+                    "title": "Bug: crashes on startup",
+                    "state": "open",
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "labels": [{"name": "bug"}, {"name": "p1"}],
+                },
                 {"number": 2, "title": "PR: fix typo", "pull_request": {"url": "..."}},
             ],
             headers={"Link": f'<{PAGE_2_URL}>; rel="next"'},
         )
     assert str(request.url) == PAGE_2_URL
-    return httpx.Response(200, json=[{"number": 3, "title": "Docs out of date"}])
+    return httpx.Response(
+        200,
+        json=[
+            {
+                "number": 3,
+                "title": "Docs out of date",
+                "state": "closed",
+                "created_at": "2026-01-02T00:00:00Z",
+            }
+        ],
+    )
 
 
 def test_iter_issues_paginates_and_skips_pull_requests():
@@ -66,6 +82,9 @@ def test_iter_issues_paginates_and_skips_pull_requests():
 
     assert all(isinstance(issue, Issue) for issue in issues)
     assert [issue.number for issue in issues] == [1, 3]
+    assert issues[0].state == "open"
+    assert issues[0].labels == ["bug", "p1"]
+    assert issues[1].state == "closed"
 
 
 COMMENTS_URL = "https://api.github.com/repos/octocat/hello-world/issues/1/comments"
@@ -77,8 +96,18 @@ def comments_handler(request: httpx.Request) -> httpx.Response:
     return httpx.Response(
         200,
         json=[
-            {"user": {"login": "alice"}, "body": "Can you share a stack trace?"},
-            {"user": {"login": "bob"}, "body": "Happens on Windows too."},
+            {
+                "id": 101,
+                "user": {"login": "alice"},
+                "body": "Can you share a stack trace?",
+                "created_at": "2026-01-01T00:00:00Z",
+            },
+            {
+                "id": 102,
+                "user": {"login": "bob"},
+                "body": "Happens on Windows too.",
+                "created_at": "2026-01-02T00:00:00Z",
+            },
         ],
     )
 
@@ -90,6 +119,7 @@ def test_get_issue_comments_returns_comment_models():
         comments = gh.get_issue_comments("octocat", "hello-world", 1)
 
     assert all(isinstance(comment, Comment) for comment in comments)
+    assert comments[0].id == 101
     assert comments[0].user_login == "alice"
     assert comments[0].body == "Can you share a stack trace?"
     assert comments[1].user_login == "bob"

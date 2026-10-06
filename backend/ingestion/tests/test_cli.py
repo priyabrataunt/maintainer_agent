@@ -42,7 +42,12 @@ def test_skips_pull_requests_and_prints_issues(capsys, monkeypatch):
             return httpx.Response(
                 200,
                 json=[
-                    {"number": 1, "title": "Bug: crashes on startup"},
+                    {
+                        "number": 1,
+                        "title": "Bug: crashes on startup",
+                        "state": "open",
+                        "created_at": "2026-01-01T00:00:00Z",
+                    },
                     {
                         "number": 2,
                         "title": "PR: fix typo",
@@ -128,7 +133,14 @@ def test_saves_fetched_data_to_disk(tmp_path, monkeypatch):
         if request.url.path.endswith("/issues"):
             return httpx.Response(
                 200,
-                json=[{"number": 1, "title": "Bug: crashes on startup"}],
+                json=[
+                    {
+                        "number": 1,
+                        "title": "Bug: crashes on startup",
+                        "state": "open",
+                        "created_at": "2026-01-01T00:00:00Z",
+                    }
+                ],
                 headers={"X-RateLimit-Remaining": "4999"},
             )
         if request.url.path.endswith("/pulls"):
@@ -160,6 +172,48 @@ def test_saves_fetched_data_to_disk(tmp_path, monkeypatch):
     assert json.loads((repo_dir / "issues.json").read_text())[0]["number"] == 1
     assert json.loads((repo_dir / "pull_requests.json").read_text())[0]["number"] == 7
     assert json.loads((repo_dir / "commits.json").read_text())[0]["sha"] == "abc123"
+
+
+def test_saves_issue_comments_to_disk_when_issue_flag_given(tmp_path, monkeypatch):
+    monkeypatch.setattr(storage, "DATA_DIR", tmp_path)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/comments"):
+            return httpx.Response(
+                200,
+                json=[
+                    {
+                        "id": 101,
+                        "user": {"login": "alice"},
+                        "body": "stack trace?",
+                        "created_at": "2026-01-01T00:00:00Z",
+                    }
+                ],
+            )
+        if request.url.path.endswith(("/issues", "/pulls", "/commits")):
+            return httpx.Response(200, json=[], headers={"X-RateLimit-Remaining": "4999"})
+        return httpx.Response(
+            200,
+            json={
+                "name": "hello-world",
+                "description": "My first repo",
+                "stargazers_count": 42,
+            },
+            headers={"X-RateLimit-Remaining": "4999"},
+        )
+
+    monkeypatch.setattr(
+        cli,
+        "GitHubClient",
+        lambda: GitHubClient(token="t", transport=httpx.MockTransport(handler)),
+    )
+
+    cli.main(["--owner", "octocat", "--repo", "hello-world", "--issue", "1"])
+
+    repo_dir = tmp_path / "octocat_hello-world"
+    comments = json.loads((repo_dir / "comments_1.json").read_text())
+    assert comments[0]["id"] == 101
+    assert comments[0]["user_login"] == "alice"
 
 
 def test_exits_cleanly_when_rate_limit_exceeded(capsys, monkeypatch):

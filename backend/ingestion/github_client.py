@@ -96,6 +96,11 @@ class GitHubClient:
         """Return all comments for one issue."""
         response = self._get(f"/repos/{owner}/{repo}/issues/{issue_number}/comments")
         return [
-            Comment(user_login=item["user"]["login"], body=item["body"])
+            Comment(
+                id=item["id"],
+                user_login=item["user"]["login"],
+                body=item["body"],
+                created_at=item["created_at"],
+            )
             for item in response.json()
         ]

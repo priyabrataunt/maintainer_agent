@@ -35,8 +35,15 @@ def main(argv: list[str] | None = None) -> None:
                 print(f"#{issue.number} {issue.title}")
 
             if args.issue is not None:
-                for comment in github.get_issue_comments(args.owner, args.repo, args.issue):
+                comments = github.get_issue_comments(args.owner, args.repo, args.issue)
+                for comment in comments:
                     print(f"{comment.user_login}: {comment.body}")
+                save_json(
+                    args.owner,
+                    args.repo,
+                    f"comments_{args.issue}.json",
+                    [c.model_dump(mode="json") for c in comments],
+                )
 
             prs = list(islice(github.iter_pull_requests(args.owner, args.repo), args.limit))
             for pr in prs:
@@ -47,7 +54,12 @@ def main(argv: list[str] | None = None) -> None:
                 print(f"{commit.sha[:7]} {commit.message.splitlines()[0]}")
 
             save_json(args.owner, args.repo, "repo.json", repo.model_dump())
-            save_json(args.owner, args.repo, "issues.json", [i.model_dump() for i in issues])
+            save_json(
+                args.owner,
+                args.repo,
+                "issues.json",
+                [i.model_dump(mode="json") for i in issues],
+            )
             save_json(
                 args.owner, args.repo, "pull_requests.json", [pr.model_dump() for pr in prs]
             )

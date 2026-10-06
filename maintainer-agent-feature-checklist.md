@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–2.2 complete. Next action: **2.3 — DB session + DI**.
+**Current position:** 1.1–3.5 complete. Next action: **3.6 — Register the OAuth app** (needs a GitHub OAuth app created by the user first).
 
 ---
 
@@ -47,26 +47,26 @@ Keep these in mind; they are already applied below.
 
 - [x] **2.1 Postgres in compose** — `docker-compose.yml` with only a `postgres` service, pgvector-enabled image.
 - [x] **2.2 FastAPI app + `/health`** — create the app, add `GET /health`, test it with TestClient.
-- [ ] **2.3 DB session + DI** — SQLAlchemy engine, a `get_db` dependency (dependency injection practice), and `GET /db-health` running `SELECT 1`.
-- [ ] **2.4 Test DB fixture** — a separate `maintainer_test` Postgres database, rolled back after each test.
-- [ ] **2.5 Alembic setup** — `alembic init`, read the DB URL from settings rather than hardcoding it in `alembic.ini`.
-- [ ] **2.6 `repositories` model + migration** — fields: id, owner, name, description. `unique(owner, name)`. Autogenerate, then `upgrade head`.
-- [ ] **2.7 Pydantic schemas** — `RepositoryCreate` and `RepositoryRead`, kept separate from the ORM model.
-- [ ] **2.8 `POST /repositories`** — return 409 on duplicates.
-- [ ] **2.9 `GET /repositories` and `GET /repositories/{id}`** — 404 when missing.
-- [ ] **2.10 `PATCH` and `DELETE /repositories/{id}`**
-- [ ] **2.11 Pagination** — `?limit=&offset=`.
-- [ ] **2.12 `issues` model + migration** — FK to `repositories`; fields `github_number`, `title`, `body`, `state`, `labels` (JSONB), `created_at`; `unique(repository_id, github_number)`.
-- [ ] **2.13 Rollback check** — verify `alembic downgrade -1` and `alembic upgrade head` both run cleanly.
-- [ ] **2.14 Issue endpoints** — `POST` and `GET /repositories/{id}/issues`, with a `?state=open` filter.
+- [x] **2.3 DB session + DI** — SQLAlchemy engine, a `get_db` dependency (dependency injection practice), and `GET /db-health` running `SELECT 1`.
+- [x] **2.4 Test DB fixture** — a separate `maintainer_test` Postgres database, rolled back after each test.
+- [x] **2.5 Alembic setup** — `alembic init`, read the DB URL from settings rather than hardcoding it in `alembic.ini`.
+- [x] **2.6 `repositories` model + migration** — fields: id, owner, name, description. `unique(owner, name)`. Autogenerate, then `upgrade head`.
+- [x] **2.7 Pydantic schemas** — `RepositoryCreate` and `RepositoryRead`, kept separate from the ORM model.
+- [x] **2.8 `POST /repositories`** — return 409 on duplicates.
+- [x] **2.9 `GET /repositories` and `GET /repositories/{id}`** — 404 when missing.
+- [x] **2.10 `PATCH` and `DELETE /repositories/{id}`**
+- [x] **2.11 Pagination** — `?limit=&offset=`.
+- [x] **2.12 `issues` model + migration** — FK to `repositories`; fields `github_number`, `title`, `body`, `state`, `labels` (JSONB), `created_at`; `unique(repository_id, github_number)`.
+- [x] **2.13 Rollback check** — verify `alembic downgrade -1` and `alembic upgrade head` both run cleanly.
+- [x] **2.14 Issue endpoints** — `POST` and `GET /repositories/{id}/issues`, with a `?state=open` filter.
 
 ## Week 3 — SQL, auth, Docker, CI, deploy
 
-- [ ] **3.1 JSON loader** — read the step-1 files and insert via the models using upserts (`ON CONFLICT DO UPDATE`). First time the CLI meets the DB.
-- [ ] **3.2 Transactions** — wrap the load in one transaction; test that one bad row rolls everything back.
-- [ ] **3.3 Index + EXPLAIN** — add an index on `issues(repository_id, state)`, compare `EXPLAIN` output before and after.
-- [ ] **3.4 Stats endpoint** — `GET /repositories/{id}/stats`: open/closed counts via JOIN + GROUP BY.
-- [ ] **3.5 `issue_comments` table + loader** — you need comments as documents in Week 5.
+- [x] **3.1 JSON loader** — read the step-1 files and insert via the models using upserts (`ON CONFLICT DO UPDATE`). First time the CLI meets the DB.
+- [x] **3.2 Transactions** — wrap the load in one transaction; test that one bad row rolls everything back.
+- [x] **3.3 Index + EXPLAIN** — add an index on `issues(repository_id, state)`, compare `EXPLAIN` output before and after.
+- [x] **3.4 Stats endpoint** — `GET /repositories/{id}/stats`: open/closed counts via JOIN + GROUP BY.
+- [x] **3.5 `issue_comments` table + loader** — you need comments as documents in Week 5.
 - [ ] **3.6 Register the OAuth app** — client id/secret into settings.
 - [ ] **3.7 `GET /auth/login`** — redirect to GitHub's authorize URL with a random `state` stored in a cookie.
 - [ ] **3.8 `GET /auth/callback`** — verify `state`, exchange the code for a token, fetch the user profile.
