@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–3.13 and 3.17–3.19 complete (Docker steps 3.14–3.16 skipped for now). Next: **3.20 — Deploy** (needs your hosting account).
+**Current position:** 1.1–3.13, 3.17–3.19 and Week 4 (4.3–4.6, 4.8, 4.10, 4.14) complete. Docker steps (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2) and DB-backed items (4.7, 4.13) are pending. Next: **5.3 chunker**, then **4.9 GitHub-client retry**.
 
 ---
 
@@ -99,18 +99,18 @@ Keep these in mind; they are already applied below.
 
 - [ ] **4.1 First LLM call** — script that calls OpenAI to summarize one issue from your DB.
 - [ ] **4.2 Same with Anthropic**
-- [ ] **4.3 `LLMProvider` interface** — `complete(messages) -> LLMResponse`, two implementations.
-- [ ] **4.4 Pin model versions** — exact versions in settings. Never "latest" in code.
-- [ ] **4.5 Log tokens + latency** — tokens in, tokens out, duration for every call.
-- [ ] **4.6 Cost calculator** — driven by a price table in config.
+- [x] **4.3 `LLMProvider` interface** — `complete(messages) -> LLMResponse`, two implementations.
+- [x] **4.4 Pin model versions** — exact versions in settings. Never "latest" in code.
+- [x] **4.5 Log tokens + latency** — tokens in, tokens out, duration for every call.
+- [x] **4.6 Cost calculator** — driven by a price table in config.
 - [ ] **4.7 `model_calls` table** — persist every call.
-- [ ] **4.8 Structured output** — issue triage returning `{type, priority, summary}`, validated with Pydantic.
-- [ ] **4.9 Retry with backoff** — on 429/5xx, for both the LLM client and the GitHub client.
-- [ ] **4.10 Provider fallback** — if provider A fails, use provider B.
+- [x] **4.8 Structured output** — issue triage returning `{type, priority, summary}`, validated with Pydantic.
+- [ ] **4.9 Retry with backoff** — on 429/5xx, for both the LLM client and the GitHub client. (LLM side done via `RetryingProvider`; GitHub client still to do.)
+- [x] **4.10 Provider fallback** — if provider A fails, use provider B.
 - [ ] **4.11 Prompt caching** — static system prompt first; check the cached-token count in the response.
 - [ ] **4.12 Streaming** — `POST /issues/{id}/summarize/stream` over SSE.
 - [ ] **4.13 `prompt_versions` table** — record the prompt version on each `model_call`.
-- [ ] **4.14 Tests with a fake provider** — no network.
+- [x] **4.14 Tests with a fake provider** — no network.
 
 ## Week 5 — Retrieval + context engineering
 

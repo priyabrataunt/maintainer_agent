@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     github_oauth_redirect_uri: str = "http://localhost:8000/auth/callback"
     jwt_secret: SecretStr = SecretStr("")
     jwt_expire_minutes: int = 60 * 24
+    anthropic_api_key: SecretStr = SecretStr("")
+    openai_api_key: SecretStr = SecretStr("")
+    # Exact model versions, never "latest" aliases.
+    anthropic_model: str = "claude-sonnet-5-5"
+    openai_model: str = "gpt-4.1-2025-04-14"
     test_database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test"
 
 
