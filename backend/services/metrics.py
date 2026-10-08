@@ -96,3 +96,20 @@ def all_metrics(db: Session) -> dict:
         "daily_cost": daily_cost(db),
         "runs_at_step_limit": runs_at_step_limit(db),
     }
+
+
+def model_comparison(db: Session) -> list[dict]:
+    """One row per evaluation run: accuracy, trajectory pass rate, judge score, latency, cost."""
+    return _rows(db, """
+        SELECT r.id AS run_id, r.name, r.model,
+               COUNT(*) AS cases,
+               AVG(res.citation_correct::int)::float AS citation_accuracy,
+               AVG(res.trajectory_ok::int)::float AS trajectory_pass_rate,
+               AVG(res.judge_score)::float AS avg_judge_score,
+               percentile_cont(0.5) WITHIN GROUP (ORDER BY res.latency_s) AS p50_latency_s,
+               SUM(res.cost_usd) AS total_cost_usd
+        FROM evaluation_runs r
+        JOIN evaluation_results res ON res.run_id = r.id
+        GROUP BY r.id
+        ORDER BY r.id
+    """)

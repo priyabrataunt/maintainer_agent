@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** Phases 1–2 backend largely built: Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, Week 5 (5.1–5.16, 5.16 harness-only), Week 6 (6.1–6.6, 6.8, 6.11–6.13), Week 7 (7.1–7.13, 7.15) and Week 10 (10.1, 10.2, 10.4–10.6, 10.8). Pending: Docker (3.14–3.16), deploy (3.20–3.22), anything needing real LLM keys (4.1, 4.2, 4.11, 4.12, 6.7, 6.9, 6.10, 6.14), 7.14 user-token storage, Week 8 (LangGraph, evals, tracing), Week 9 (MCP, queue, UI), 10.3, 10.7, Weeks 11–12. Next: Week 8 eval tables and runner (8.10–8.13, 8.16).
+**Current position:** Phases 1–2 backend largely built: Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, Week 5 (5.1–5.16, 5.16 harness-only), Week 6 (6.1–6.6, 6.8, 6.11–6.13), Week 7 (7.1–7.13, 7.15) and Week 8 evals (8.11–8.14, 8.16, 8.17) and Week 10 (10.1, 10.2, 10.4–10.6, 10.8). Pending: Docker (3.14–3.16), deploy (3.20–3.22), anything needing real LLM keys (4.1, 4.2, 4.11, 4.12, 6.7, 6.9, 6.10, 6.14), 7.14 user-token storage, Week 8 (LangGraph 8.1–8.9, 8.10, 8.15, 8.18, 8.19), Week 9 (MCP, queue, UI), 10.3, 10.7, Weeks 11–12. Next: 7.14 token storage, then LangGraph port (8.1–8.7).
 
 ---
 
@@ -184,15 +184,15 @@ No framework this week.
 - [ ] **8.7 Graph diagram in the README**
 - [ ] **8.8 Langfuse setup** — trace one run.
 - [ ] **8.9 Trace everything** — every LLM and tool call; store the trace id on the investigation.
-- [ ] **8.10 Build the eval set** — 30–50 cases from real traces, each with expected issue ids and expected tools.
-- [ ] **8.11 Eval tables** — `evaluation_cases`, `evaluation_runs`, `evaluation_results`.
-- [ ] **8.12 Eval runner CLI**
-- [ ] **8.13 Deterministic checks first** — "was the correct issue cited?"
-- [ ] **8.14 LLM-as-judge** — 1–5 scale with a reason.
-- [ ] **8.15 Validate the judge** — hand-label 20 cases, measure agreement.
-- [ ] **8.16 Trajectory scoring** — right tool chosen, steps within bound, no forbidden tool calls.
-- [ ] **8.17 Model comparison table** — accuracy, p50 latency, cost.
-- [ ] **8.18 Eval regression gate in CI** — ~15 cases in GitHub Actions; fail the build below threshold. Only run on PRs touching prompts or agent code, to save money.
+- [ ] **8.10 Build the eval set** — 30–50 cases from real traces, each with expected issue ids and expected tools. (Your part: write 30–50 real cases. `python -m backend.evals.cli load --owner O --repo R --file cases.json` loads them.)
+- [x] **8.11 Eval tables** — `evaluation_cases`, `evaluation_runs`, `evaluation_results`.
+- [x] **8.12 Eval runner CLI** (`python -m backend.evals.cli run --owner O --repo R --name baseline [--judge] [--min-accuracy 0.8]`)
+- [x] **8.13 Deterministic checks first** — "was the correct issue cited?"
+- [x] **8.14 LLM-as-judge** — 1–5 scale with a reason.
+- [ ] **8.15 Validate the judge** — hand-label 20 cases, measure agreement. (`judge_agreement` computes exact/within-one/MAE; the 20 hand labels are yours to write.)
+- [x] **8.16 Trajectory scoring** — right tool chosen, steps within bound, no forbidden tool calls.
+- [x] **8.17 Model comparison table** — accuracy, p50 latency, cost.
+- [ ] **8.18 Eval regression gate in CI** — ~15 cases in GitHub Actions; fail the build below threshold. Only run on PRs touching prompts or agent code, to save money. (`check_run` and `--min-accuracy` implement the threshold; the GitHub Actions workflow is not written, since it needs an eval set, a populated index and LLM secrets.)
 - [ ] **8.19 Eval write-up** — your single most differentiating artifact.
 
 ## Week 9 — MCP, queue, UI

@@ -6,6 +6,7 @@ from sqlalchemy import engine_from_config, pool
 from backend.config import settings
 from backend.models import agent_run as agent_run_models  # noqa: F401
 from backend.models import document_chunk as document_chunk_models  # noqa: F401
+from backend.models import evaluation as evaluation_models  # noqa: F401
 from backend.models import investigation as investigation_models  # noqa: F401
 from backend.models import issue as issue_models  # noqa: F401
 from backend.models import issue_comment as issue_comment_models  # noqa: F401
