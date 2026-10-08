@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** Weeks 1–2 and 5 (except 5.16 real data), plus 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, 5.x retrieval stack (5.1–5.16) and Week 7 core (7.1–7.9, 7.11, 7.12, 7.15) complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, 4.11, 4.12, a real tool-calling adapter), 6.x RAG, 7.10, 7.13 endpoint, 7.14. Embeddings use a local hash embedder until an OpenAI key is set. Next: 6.1–6.6 (investigations, citations).
+**Current position:** Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, the retrieval stack (5.1–5.16, harness-only for 5.16) and Week 7 core (7.1–7.9, 7.11, 7.12, 7.15) complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, 4.11, 4.12, a real tool-calling adapter), 6.x RAG, 7.10, 7.13 endpoint, 7.14. Embeddings use a local hash embedder until an OpenAI key is set. Next: 6.1–6.6 (investigations, citations).
 
 ---
 
