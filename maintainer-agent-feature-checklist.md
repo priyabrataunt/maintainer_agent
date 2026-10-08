@@ -142,7 +142,7 @@ Flagship domain: **issue triage for maintainers**. Not generic chat-with-PDF.
 - [x] **6.5 Reject invented citations** — anything not in the retrieved set.
 - [x] **6.6 "No relevant result"** — below a score threshold, answer without calling the LLM.
 - [ ] **6.7 Reranking** — retrieve 20, rerank to 5, compare hit@5 against 5.16.
-- [ ] **6.8 Duplicate-issue finder** — new issue text in, similar issues + reasons out. **This is the demo feature.**
+- [x] **6.8 Duplicate-issue finder** — new issue text in, similar issues + reasons out. **This is the demo feature.**
 - [ ] **6.9 Prompt-injection mitigation** — delimit issue text as data, validate output, test with an issue saying "ignore previous instructions." (Partly done: sources and question are delimited as data, the system prompt says so, and citations are validated. Still needs an end-to-end test against a real model.)
 - [ ] **6.10 Name the OWASP items** — LLM01 (Prompt Injection), LLM06 (Excessive Agency).
 - [ ] **6.11 Multi-turn** — store messages so users can ask follow-ups.
