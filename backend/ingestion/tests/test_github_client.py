@@ -199,3 +199,54 @@ def test_other_403s_are_not_treated_as_rate_limit():
     with GitHubClient(token="test-token", transport=httpx.MockTransport(handler)) as gh:
         with pytest.raises(httpx.HTTPStatusError):
             gh.get_repo("octocat", "hello-world")
+
+
+def test_get_retries_server_errors_with_backoff():
+    statuses = iter([502, 503, 200])
+    sleeps: list[float] = []
+
+    def flaky(request: httpx.Request) -> httpx.Response:
+        status = next(statuses)
+        if status != 200:
+            return httpx.Response(status)
+        return httpx.Response(200, json=REPO_JSON)
+
+    with GitHubClient(
+        token="t", transport=httpx.MockTransport(flaky), sleep=sleeps.append
+    ) as gh:
+        repo, _ = gh.get_repo("octocat", "hello-world")
+
+    assert repo.name == "hello-world"
+    assert sleeps == [1.0, 2.0]
+
+
+def test_get_gives_up_after_max_attempts():
+    calls = []
+
+    def always_down(request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        return httpx.Response(503)
+
+    with GitHubClient(
+        token="t", transport=httpx.MockTransport(always_down), sleep=lambda s: None
+    ) as gh:
+        with pytest.raises(httpx.HTTPStatusError):
+            gh.get_repo("octocat", "hello-world")
+
+    assert len(calls) == 3
+
+
+def test_get_does_not_retry_client_errors():
+    calls = []
+
+    def not_found(request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        return httpx.Response(404)
+
+    with GitHubClient(
+        token="t", transport=httpx.MockTransport(not_found), sleep=lambda s: None
+    ) as gh:
+        with pytest.raises(httpx.HTTPStatusError):
+            gh.get_repo("octocat", "hello-world")
+
+    assert len(calls) == 1

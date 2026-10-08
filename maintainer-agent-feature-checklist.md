@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–3.13, 3.17–3.19 and Week 4 (4.3–4.6, 4.8, 4.10, 4.14) complete. Docker steps (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2) and DB-backed items (4.7, 4.13) are pending. Next: **5.3 chunker**, then **4.9 GitHub-client retry**.
+**Current position:** 1.1–3.13, 3.17–3.19, Week 4 (4.3–4.6, 4.8–4.10, 4.14), 5.3 and 5.12 complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2), DB-backed items (4.7, 4.13, 5.x tables). Next pure-logic items: **5.13 token budgeter**, **5.14 tool-output truncation**.
 
 ---
 
@@ -105,7 +105,7 @@ Keep these in mind; they are already applied below.
 - [x] **4.6 Cost calculator** — driven by a price table in config.
 - [ ] **4.7 `model_calls` table** — persist every call.
 - [x] **4.8 Structured output** — issue triage returning `{type, priority, summary}`, validated with Pydantic.
-- [ ] **4.9 Retry with backoff** — on 429/5xx, for both the LLM client and the GitHub client. (LLM side done via `RetryingProvider`; GitHub client still to do.)
+- [x] **4.9 Retry with backoff** — on 429/5xx, for both the LLM client and the GitHub client.
 - [x] **4.10 Provider fallback** — if provider A fails, use provider B.
 - [ ] **4.11 Prompt caching** — static system prompt first; check the cached-token count in the response.
 - [ ] **4.12 Streaming** — `POST /issues/{id}/summarize/stream` over SSE.
@@ -118,7 +118,7 @@ Flagship domain: **issue triage for maintainers**. Not generic chat-with-PDF.
 
 - [ ] **5.1 Enable pgvector** — via migration.
 - [ ] **5.2 Build documents** — one per issue: title + body + comments.
-- [ ] **5.3 Chunker** — split by tokens with overlap. Unit test it.
+- [x] **5.3 Chunker** — split by tokens with overlap. Unit test it.
 - [ ] **5.4 `document_chunks` table** — `text`, `embedding`, `repository_id`, `issue_id`, `source_type`, `metadata`.
 - [ ] **5.5 Embed and store one chunk**
 - [ ] **5.6 Batch embed a repo** — as a CLI command.
@@ -127,7 +127,7 @@ Flagship domain: **issue triage for maintainers**. Not generic chat-with-PDF.
 - [ ] **5.9 Metadata filters** — repo, state, source type.
 - [ ] **5.10 HNSW index** — confirm `EXPLAIN` shows it's used.
 - [ ] **5.11 Search endpoint** — `GET /repositories/{id}/search?q=`.
-- [ ] **5.12 Token counter utility**
+- [x] **5.12 Token counter utility**
 - [ ] **5.13 Token budgeter** — slots for system prompt, retrieved chunks, history, tool outputs; drop lowest-scoring chunks first when over budget.
 - [ ] **5.14 Truncate tool outputs** — before they enter context: `…[truncated 3,200 tokens]`.
 - [ ] **5.15 Log the budget breakdown** — per request. Feeds the Wk8 cost table.

@@ -1,4 +1,5 @@
-from collections.abc import Iterator
+import time
+from collections.abc import Callable, Iterator
 from datetime import datetime, timezone
 
 import httpx
@@ -37,7 +38,13 @@ class GitHubClient:
         self,
         token: str | None = None,
         transport: httpx.BaseTransport | None = None,
+        max_attempts: int = 3,
+        retry_base_delay_s: float = 1.0,
+        sleep: Callable[[float], None] = time.sleep,
     ) -> None:
+        self._max_attempts = max_attempts
+        self._retry_base_delay_s = retry_base_delay_s
+        self._sleep = sleep
         token = token or settings.github_token.get_secret_value()
         self._client = httpx.Client(
             base_url=GITHUB_API_URL,
@@ -52,8 +59,13 @@ class GitHubClient:
         self._client.close()
 
     def _get(self, url: str) -> httpx.Response:
-        """GET `url`, raising RateLimitExceeded if the quota just hit zero."""
-        response = self._client.get(url)
+        """GET `url`, retrying 429/5xx with backoff; raise RateLimitExceeded at quota zero."""
+        for attempt in range(1, self._max_attempts + 1):
+            response = self._client.get(url)
+            transient = response.status_code == 429 or response.status_code >= 500
+            if not transient or attempt == self._max_attempts:
+                break
+            self._sleep(self._retry_base_delay_s * 2 ** (attempt - 1))
         if response.status_code == 403 and response.headers.get("X-RateLimit-Remaining") == "0":
             reset_at = datetime.fromtimestamp(
                 int(response.headers["X-RateLimit-Reset"]), tz=timezone.utc
