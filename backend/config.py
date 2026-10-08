@@ -36,6 +36,12 @@ class Settings(BaseSettings):
     history_budget_tokens: int = 1500
     # Comma-separated GitHub logins allowed to view /admin/metrics. Empty = nobody.
     admin_logins: str = ""
+    redis_url: str = "redis://localhost:6379/0"
+    # New jobs are refused with 429 once this many are queued or running.
+    max_queue_depth: int = 50
+    # Extra attempts after the first for a failing job, with growing delays between them.
+    job_max_retries: int = 3
+    job_retry_delays_s: str = "10,30,90"
     test_database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test"
 
 

@@ -62,14 +62,72 @@ graph reproduces; both are tested against the same suite), `backend/agent/tools.
 | Model cites an issue it was not shown | The answer is re-asked once, then rejected and withheld. |
 | Issue text tries to give instructions | Issue text is delimited as data and the system prompt says so; the router and judge treat inputs the same way. |
 
+## Background jobs (queue)
+
+Long work (an investigation, a repository sync) runs on a worker, not in the request:
+
+```mermaid
+graph LR;
+    api[POST /investigations<br/>POST /repositories/id/sync] -->|1 insert row, status=queued| pg[(jobs table)];
+    api -->|2 enqueue job id| redis[(Redis queue)];
+    api -->|202 + job_id| client;
+    redis --> worker[RQ worker];
+    worker -->|status, attempts, result| pg;
+    client -->|GET /jobs/id| pg;
+```
+
+- **Postgres is the source of truth.** The `jobs` row holds status, attempts, result and
+  error; Redis only carries the job id. Losing Redis loses the queue, not the history.
+- **Idempotency.** Send an `Idempotency-Key` header and a repeated request returns the
+  original job (HTTP 200, `deduplicated: true`) instead of starting a second one. Reusing a
+  key for a *different* request is a 422. Keys are scoped per user, and a unique constraint
+  settles two simultaneous requests with the same key.
+- **Bounded retries.** A failing job gets `JOB_MAX_RETRIES` extra attempts (default 3) with
+  growing delays (`JOB_RETRY_DELAYS_S`, default 10, 30, 90 seconds). The final attempt records
+  the failure and does not raise, so the queue cannot retry beyond the bound. Failures that a
+  retry cannot fix (no LLM configured, repository missing, GitHub rate limit) fail at once.
+  A job that already finished is never run again if the queue redelivers it.
+- **Backpressure.** Once `MAX_QUEUE_DEPTH` jobs are queued or running, new requests get
+  `429` with `Retry-After`. Replays of already-accepted work are still answered.
+- **Worker.** `uv run python -m backend.worker` (it runs RQ's scheduler, which is what moves
+  delayed retries back onto the queue).
+
+## Using it from Claude (MCP)
+
+`backend/mcp_server.py` is a read-only MCP server (`search_issues`, `get_issue`,
+`list_recent_commits`, `get_pr`). It deliberately has no write tools: comments, labels and
+closing issues only happen through the confirmation gate in the HTTP API.
+
+```bash
+claude mcp add maintainer-agent -- uv run --directory /path/to/maintainer_agent \
+  python -m backend.mcp_server
+```
+
+For Claude Desktop add this to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "maintainer-agent": {
+      "command": "uv",
+      "args": ["run", "--directory", "/path/to/maintainer_agent",
+               "python", "-m", "backend.mcp_server"]
+    }
+  }
+}
+```
+
+Repositories must be ingested first (`POST /repositories/{id}/sync`, or the CLIs below).
+
 ## Running it
 
 ```bash
 uv sync
 cp .env.example .env        # fill in values
-docker compose up -d        # Postgres with pgvector
+docker compose up -d        # Postgres (pgvector) and Redis
 uv run alembic upgrade head
 uv run uvicorn backend.main:app --reload
+uv run python -m backend.worker   # in a second terminal, for background jobs
 uv run pytest
 ```
 

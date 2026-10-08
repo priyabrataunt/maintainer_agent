@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** Phases 1–2 backend largely built: Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, Week 5 (5.1–5.16, 5.16 harness-only), Week 6 (6.1–6.6, 6.8, 6.11–6.13), Week 7 (7.1–7.13, 7.15, 7.16) and Week 8 (8.1–8.7, 8.11–8.14, 8.16, 8.17) and Week 10 (10.1, 10.2, 10.4–10.6, 10.8). Pending: Docker (3.14–3.16), deploy (3.20–3.22), anything needing real LLM keys (4.1, 4.2, 4.11, 4.12, 6.7, 6.9, 6.10, 6.14), 7.14 user-token storage, Week 8 (8.8 and 8.9 tracing, 8.10, 8.15, 8.18, 8.19), Week 9 (MCP, queue, UI), 10.3, 10.7, Weeks 11–12. Next: 7.14 user-token storage, then Week 9 (MCP server, queue, UI).
+**Current position:** Phases 1–2 backend largely built: Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, Week 5 (5.1–5.16, 5.16 harness-only), Week 6 (6.1–6.6, 6.8, 6.11–6.13), Week 7 (7.1–7.13, 7.15, 7.16) and Week 8 (8.1–8.7, 8.11–8.14, 8.16, 8.17) and Week 9 backend (9.2, 9.5–9.12, 9.20) and Week 10 (10.1, 10.2, 10.4–10.6, 10.8). Pending: Docker (3.14–3.16), deploy (3.20–3.22), anything needing real LLM keys (4.1, 4.2, 4.11, 4.12, 6.7, 6.9, 6.10, 6.14), 7.14 user-token storage, Week 8 (8.8 and 8.9 tracing, 8.10, 8.15, 8.18, 8.19), Week 9 (9.1, 9.3 connection, 9.4, 9.13–9.19 and 9.21: the Next.js UI), 10.3, 10.7, Weeks 11–12. Next: 7.14 user-token storage, or the Next.js UI (9.13–9.19).
 
 ---
 
@@ -197,18 +197,18 @@ No framework this week.
 
 ## Week 9 — MCP, queue, UI
 
-- [ ] **9.1 Read the current MCP spec** — the July 28, 2026 revision (stateless core, Tasks, MCP Apps). Not 2025 tutorials.
-- [ ] **9.2 FastMCP server** — expose `search_issues`; test with MCP Inspector.
-- [ ] **9.3 Remaining read tools** — connect to Claude Desktop or Claude Code.
-- [ ] **9.4 Write tools with confirmation** — separate repo, own README.
-- [ ] **9.5 Redis in compose**
-- [ ] **9.6 RQ worker** — running a dummy job.
-- [ ] **9.7 Enqueue investigations** — `POST /investigations` returns 202 + job id.
-- [ ] **9.8 `GET /jobs/{id}`** — job status.
-- [ ] **9.9 Idempotency keys** — same `Idempotency-Key` header returns the same job.
-- [ ] **9.10 Bounded retries with backoff** — in the worker.
-- [ ] **9.11 Backpressure** — max-concurrency limit; 429 when the queue is full.
-- [ ] **9.12 Sync job** — `POST /repositories/{id}/sync` runs ingestion + embedding as a job. Connects Week 1 to Week 5.
+- [ ] **9.1 Read the current MCP spec** — the July 28, 2026 revision (stateless core, Tasks, MCP Apps). Not 2025 tutorials. (Yours to read. The installed SDK is `mcp` 2.x, where `FastMCP` became `MCPServer`.)
+- [x] **9.2 FastMCP server** — expose `search_issues`; test with MCP Inspector.
+- [ ] **9.3 Remaining read tools** — connect to Claude Desktop or Claude Code. (All four read tools are built and tested over real stdio. Connecting Claude Desktop or Claude Code is your step: see the README for the config.)
+- [ ] **9.4 Write tools with confirmation** — separate repo, own README. (Deliberately not done here: the MCP server is read-only; this belongs in its own repo.)
+- [x] **9.5 Redis in compose**
+- [x] **9.6 RQ worker** — running a dummy job.
+- [x] **9.7 Enqueue investigations** — `POST /investigations` returns 202 + job id.
+- [x] **9.8 `GET /jobs/{id}`** — job status.
+- [x] **9.9 Idempotency keys** — same `Idempotency-Key` header returns the same job.
+- [x] **9.10 Bounded retries with backoff** — in the worker.
+- [x] **9.11 Backpressure** — max-concurrency limit; 429 when the queue is full.
+- [x] **9.12 Sync job** — `POST /repositories/{id}/sync` runs ingestion + embedding as a job. Connects Week 1 to Week 5.
 - [ ] **9.13 Next.js app + login button**
 - [ ] **9.14 Repo list page**
 - [ ] **9.15 Chat page**
@@ -216,7 +216,7 @@ No framework this week.
 - [ ] **9.17 Sources panel** — links to the GitHub issues.
 - [ ] **9.18 Confirm / Reject buttons** — for pending actions.
 - [ ] **9.19 Deploy frontend + worker** — Vercel for the frontend.
-- [ ] **9.20 Architecture note** — queue, idempotency, retries.
+- [x] **9.20 Architecture note** — queue, idempotency, retries.
 - [ ] **9.21 Refresh the demo video + resume v2**
 
 **Milestone:** full showcase. Application blitz #2.

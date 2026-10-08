@@ -10,6 +10,7 @@ from backend.models import evaluation as evaluation_models  # noqa: F401
 from backend.models import investigation as investigation_models  # noqa: F401
 from backend.models import issue as issue_models  # noqa: F401
 from backend.models import issue_comment as issue_comment_models  # noqa: F401
+from backend.models import job as job_models  # noqa: F401
 from backend.models import model_call as model_call_models  # noqa: F401
 from backend.models import prompt_version as prompt_version_models  # noqa: F401
 from backend.models import repository as repository_models  # noqa: F401

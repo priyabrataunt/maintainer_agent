@@ -8,8 +8,7 @@ from backend.api.repositories import _get_repository_or_404
 from backend.config import settings
 from backend.db import get_db
 from backend.llm.base import LLMProvider
-from backend.llm.http_providers import AnthropicProvider, OpenAIProvider
-from backend.llm.wrappers import FallbackProvider, RetryingProvider
+from backend.llm.factory import LLMNotConfigured, build_llm_provider
 from backend.models.investigation import Investigation, InvestigationMessage
 from backend.models.user import User
 from backend.retrieval.embedder import Embedder, get_embedder
@@ -36,15 +35,10 @@ class InvestigationRead(BaseModel):
 
 
 def get_llm_provider() -> LLMProvider:
-    """Anthropic first, OpenAI as fallback, each retried; 503 if no key is configured."""
-    providers: list[LLMProvider] = []
-    if settings.anthropic_api_key.get_secret_value():
-        providers.append(RetryingProvider(AnthropicProvider()))
-    if settings.openai_api_key.get_secret_value():
-        providers.append(RetryingProvider(OpenAIProvider()))
-    if not providers:
-        raise HTTPException(status_code=503, detail="No LLM provider is configured")
-    return FallbackProvider(providers)
+    try:
+        return build_llm_provider()
+    except LLMNotConfigured as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
 @router.post(
