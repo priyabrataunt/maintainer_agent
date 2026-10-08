@@ -245,3 +245,30 @@ def test_search_endpoint_requires_query(search_client):
 def test_embedder_protocol_is_satisfied():
     embedder: Embedder = HashEmbedder()
     assert embedder.embed([]) == []
+
+
+def test_filtered_search_falls_back_to_exact_scan_when_index_misses(db_session, repo):
+    # Many chunks in another repository crowd the index's nearest neighbours, so with a
+    # tiny ef_search the HNSW scan alone would return nothing for this repository.
+    other = Repository(owner="o", name="crowd")
+    db_session.add(other)
+    db_session.flush()
+    for i in range(40):
+        add_issue(db_session, other, i + 1, f"crash startup config {i}", "crash startup config")
+    add_issue(db_session, repo, 1, "Add dark mode", "please support a dark theme")
+    index_repository(db_session, other.id, HashEmbedder())
+    index_repository(db_session, repo.id, HashEmbedder())
+
+    hits = search_chunks(
+        db_session, HashEmbedder(), repo.id, "crash startup config", k=1, ef_search=1
+    )
+
+    assert [h.issue_number for h in hits] == [1]
+
+
+def test_search_leaves_index_scans_enabled_afterwards(db_session, repo, issues):
+    index_repository(db_session, repo.id, HashEmbedder())
+
+    search_chunks(db_session, HashEmbedder(), repo.id, "zzz", k=50)  # forces the fallback path
+
+    assert db_session.execute(text("SHOW enable_indexscan")).scalar() == "on"
