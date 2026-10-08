@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–3.13, 3.17–3.19, Week 4 (4.3–4.6, 4.8–4.10, 4.14), 5.3, 5.12–5.15 complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2), DB-backed items (4.7, 4.13, 5.x tables). Next pure-logic items: **Week 7 agent loop** (7.1–7.9, 7.11, 7.15) with a scripted fake model.
+**Current position:** 1.1–3.13, 3.17–3.19, Week 4 (4.3–4.6, 4.8–4.10, 4.14), 5.3, 5.12–5.15 and Week 7 core (7.1–7.4, 7.6–7.9) complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, plus a real tool-calling model adapter), DB-backed items (4.7, 4.13, 5.x tables, 7.10). Next pure-logic items: **7.11 agent state + budgeter**, **7.12–7.13 draft tools + confirm gate**, **5.16 eval harness**.
 
 ---
 
@@ -156,21 +156,21 @@ Flagship domain: **issue triage for maintainers**. Not generic chat-with-PDF.
 
 No framework this week.
 
-- [ ] **7.1 First tool** — `search_issues` with a JSON schema.
-- [ ] **7.2 One round trip** — model calls the tool → you run it → send the result back → model answers.
-- [ ] **7.3 The loop** — repeat until the model stops calling tools.
-- [ ] **7.4 Max steps** — cap at ~8; return a partial answer when hit.
-- [ ] **7.5 More read tools** — `get_issue`, `list_recent_commits`, `get_pr`.
-- [ ] **7.6 Tool registry + allow-list** — per request.
-- [ ] **7.7 Recoverable error messages** — "#999 not found; call search_issues first."
-- [ ] **7.8 Validate tool args** — Pydantic; return validation errors to the model.
-- [ ] **7.9 Tool timeouts**
+- [x] **7.1 First tool** — `search_issues` with a JSON schema.
+- [x] **7.2 One round trip** — model calls the tool → you run it → send the result back → model answers.
+- [x] **7.3 The loop** — repeat until the model stops calling tools.
+- [x] **7.4 Max steps** — cap at ~8; return a partial answer when hit.
+- [ ] **7.5 More read tools** — `get_issue`, `list_recent_commits`, `get_pr`. (`get_issue` done; commits and PRs still to do.)
+- [x] **7.6 Tool registry + allow-list** — per request.
+- [x] **7.7 Recoverable error messages** — "#999 not found; call search_issues first."
+- [x] **7.8 Validate tool args** — Pydantic; return validation errors to the model.
+- [x] **7.9 Tool timeouts**
 - [ ] **7.10 `tool_calls` table** — args, result size, duration.
 - [ ] **7.11 Agent state object** — messages, steps, tokens; apply the budgeter at each step.
 - [ ] **7.12 Dry-run write tools** — `draft_comment`, `suggest_labels`.
 - [ ] **7.13 Permission layer** — `post_comment`, `add_label`, `close_issue` pause and return a pending action; only run after `POST /investigations/{id}/confirm`.
 - [ ] **7.14 Scope writes** — use the logged-in user's token; only repos they own.
-- [ ] **7.15 Tests with a scripted fake model** — loop terminates, max steps enforced, confirm gate blocks.
+- [ ] **7.15 Tests with a scripted fake model** — loop terminates, max steps enforced, confirm gate blocks. (Loop, max-steps, tool errors, timeouts done; confirm-gate tests await 7.13.)
 - [ ] **7.16 Failure-modes README section** — loops, hallucinated tools, huge outputs.
 
 ## Week 8 — LangGraph + evals + observability
