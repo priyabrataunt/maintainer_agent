@@ -21,6 +21,7 @@ class Tool:
     args_model: type[BaseModel]
     func: Callable[..., Any]
     timeout_s: float = 10.0
+    requires_confirmation: bool = False
 
     def spec(self) -> dict:
         return {
@@ -37,6 +38,7 @@ class ToolExecution:
     ok: bool
     output: str
     duration_s: float
+    pending: bool = False
 
 
 @dataclass
@@ -56,8 +58,19 @@ class ToolRegistry:
     def specs(self) -> list[dict]:
         return [t.spec() for t in self.tools.values()]
 
-    def execute(self, name: str, args: dict) -> ToolExecution:
-        """Run a tool; every failure becomes an error string the model can act on."""
+    def execute(self, name: str, args: dict, confirmed: bool = False) -> ToolExecution:
+        """Run a tool; every failure becomes an error string the model can act on.
+
+        Tools with `requires_confirmation` are not run unless `confirmed` is True;
+        instead the call comes back with `pending=True` so a human can approve it.
+        """
+        tool = self.tools.get(name)
+        if tool is not None and tool.requires_confirmation and not confirmed:
+            output = (
+                f"{name} needs human confirmation and has NOT run. It is queued as a "
+                "pending action; do not call it again, and tell the user it awaits approval."
+            )
+            return ToolExecution(name, args, True, output, 0.0, pending=True)
         start = time.perf_counter()
         ok, output = self._run(name, args)
         output = truncate_tool_output(output, self.max_output_tokens)

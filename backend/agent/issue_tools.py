@@ -68,3 +68,47 @@ class InMemoryIssueStore:
 
     def get(self, number: int) -> IssueRecord | None:
         return next((i for i in self.issues if i.number == number), None)
+
+
+class CommitRecord(BaseModel):
+    sha: str
+    message: str
+
+
+class PullRequestRecord(BaseModel):
+    number: int
+    title: str
+    state: str = "open"
+    body: str = ""
+
+
+class CodeStore(Protocol):
+    def recent_commits(self, limit: int) -> list[CommitRecord]: ...
+    def get_pr(self, number: int) -> PullRequestRecord | None: ...
+
+
+class RecentCommitsArgs(BaseModel):
+    limit: int = Field(default=10, ge=1, le=50)
+
+
+def add_code_tools(registry: ToolRegistry, store: CodeStore) -> ToolRegistry:
+    """Register `list_recent_commits` and `get_pr` on an existing registry."""
+
+    def list_recent_commits(limit: int) -> str:
+        commits = store.recent_commits(limit)
+        if not commits:
+            return "No commits found."
+        return "\n".join(f"{c.sha[:7]} {c.message.splitlines()[0]}" for c in commits)
+
+    def get_pr(number: int) -> str:
+        pr = store.get_pr(number)
+        if pr is None:
+            raise ToolFailure(f"PR #{number} not found; call list_recent_commits or search_issues")
+        return f"PR #{pr.number} [{pr.state}] {pr.title}\n\n{pr.body}"
+
+    registry.register(Tool(
+        "list_recent_commits", "List the most recent commits (sha and subject).",
+        RecentCommitsArgs, list_recent_commits,
+    ))
+    registry.register(Tool("get_pr", "Fetch one pull request by number.", GetIssueArgs, get_pr))
+    return registry
