@@ -78,7 +78,7 @@ def compact_history(
         transcript = f"Earlier notes:\n{summary}\n\n{transcript}"
 
     prompt = get_or_create_prompt_version(db, SUMMARY_PROMPT_NAME, SUMMARY_SYSTEM_PROMPT)
-    reply = RecordingProvider(provider, db, prompt.id).complete([
+    reply = RecordingProvider(provider, db, prompt.id, investigation_id).complete([
         Message(role="system", content=SUMMARY_SYSTEM_PROMPT),
         Message(role="user", content=f"<conversation>\n{transcript}\n</conversation>"),
     ])
@@ -122,7 +122,7 @@ def follow_up(
         return TurnOutcome(investigation.id, "no_result", NO_RESULT_ANSWER, [])
 
     prompt = get_or_create_prompt_version(db, PROMPT_NAME, SYSTEM_PROMPT)
-    recorder = RecordingProvider(provider, db, prompt.id)
+    recorder = RecordingProvider(provider, db, prompt.id, investigation.id)
     earlier = set(db.scalars(
         select(Citation.issue_number).where(Citation.investigation_id == investigation.id)
     ))

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Numeric, String, Text, func
+from sqlalchemy import DateTime, Float, ForeignKey, Index, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.models.base import Base
@@ -8,12 +8,22 @@ from backend.models.base import Base
 
 class ModelCall(Base):
     __tablename__ = "model_calls"
+    __table_args__ = (
+        Index("ix_model_calls_created_at", "created_at"),
+        Index("ix_model_calls_investigation_id", "investigation_id"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     provider: Mapped[str] = mapped_column(String, nullable=False)
     model: Mapped[str] = mapped_column(String, nullable=False)
     prompt_version_id: Mapped[int | None] = mapped_column(
         ForeignKey("prompt_versions.id"), nullable=True
+    )
+    investigation_id: Mapped[int | None] = mapped_column(
+        ForeignKey(
+            "investigations.id", ondelete="SET NULL", name="fk_model_calls_investigation_id"
+        ),
+        nullable=True,
     )
     status: Mapped[str] = mapped_column(String, nullable=False)  # ok | error
     error: Mapped[str | None] = mapped_column(Text, nullable=True)

@@ -119,7 +119,8 @@ def run_investigation(
         return InvestigationOutcome(investigation, [])
 
     prompt = get_or_create_prompt_version(db, PROMPT_NAME, SYSTEM_PROMPT)
-    recorder = RecordingProvider(provider, db, prompt.id)
+    db.flush()  # assigns investigation.id so the model calls can be linked to it
+    recorder = RecordingProvider(provider, db, prompt.id, investigation.id)
     retrieved = {h.issue_number for h in hits}
     answer, cited_numbers, valid = ask_with_citations(
         recorder, build_messages(question, hits), retrieved

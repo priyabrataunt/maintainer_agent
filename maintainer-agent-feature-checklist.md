@@ -165,11 +165,11 @@ No framework this week.
 - [x] **7.7 Recoverable error messages** — "#999 not found; call search_issues first."
 - [x] **7.8 Validate tool args** — Pydantic; return validation errors to the model.
 - [x] **7.9 Tool timeouts**
-- [ ] **7.10 `tool_calls` table** — args, result size, duration.
+- [x] **7.10 `tool_calls` table** — args, result size, duration.
 - [x] **7.11 Agent state object** — messages, steps, tokens; apply the budgeter at each step.
 - [x] **7.12 Dry-run write tools** — `draft_comment`, `suggest_labels`.
-- [ ] **7.13 Permission layer** — `post_comment`, `add_label`, `close_issue` pause and return a pending action; only run after `POST /investigations/{id}/confirm`. (Gate, pending-action store, confirm/reject done in memory; `POST /investigations/{id}/confirm` needs 6.1.)
-- [ ] **7.14 Scope writes** — use the logged-in user's token; only repos they own.
+- [x] **7.13 Permission layer** — `post_comment`, `add_label`, `close_issue` pause and return a pending action; only run after `POST /investigations/{id}/confirm`. (DB-backed; `GET /investigations/{id}/actions` lists them. Confirmation fails closed with 503 until user tokens are stored, see 7.14.)
+- [ ] **7.14 Scope writes** — use the logged-in user's token; only repos they own. (`GitHubIssueWriter` is built and mock-tested. Still missing: storing each user's OAuth token and checking they own the repo.)
 - [x] **7.15 Tests with a scripted fake model** — loop terminates, max steps enforced, confirm gate blocks.
 - [ ] **7.16 Failure-modes README section** — loops, hallucinated tools, huge outputs.
 

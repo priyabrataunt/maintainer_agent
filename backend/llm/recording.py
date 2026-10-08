@@ -28,12 +28,17 @@ class RecordingProvider:
     """Persist every call (success or failure) to `model_calls`, tagged with a prompt version."""
 
     def __init__(
-        self, inner: LLMProvider, db: Session, prompt_version_id: int | None = None
+        self,
+        inner: LLMProvider,
+        db: Session,
+        prompt_version_id: int | None = None,
+        investigation_id: int | None = None,
     ) -> None:
         self.inner = inner
         self.db = db
         self.name = inner.name
         self.prompt_version_id = prompt_version_id
+        self.investigation_id = investigation_id
 
     def complete(self, messages: list[Message]) -> LLMResponse:
         try:
@@ -43,6 +48,7 @@ class RecordingProvider:
                 provider=self.inner.name,
                 model=getattr(self.inner, "model", "unknown"),
                 prompt_version_id=self.prompt_version_id,
+                investigation_id=self.investigation_id,
                 status="error",
                 error=str(exc)[:1000],
                 latency_s=0.0,
@@ -53,6 +59,7 @@ class RecordingProvider:
             provider=response.provider,
             model=response.model,
             prompt_version_id=self.prompt_version_id,
+            investigation_id=self.investigation_id,
             status="ok",
             input_tokens=response.input_tokens,
             output_tokens=response.output_tokens,
