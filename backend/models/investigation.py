@@ -30,3 +30,24 @@ class Citation(Base):
     )
     issue_id: Mapped[int] = mapped_column(ForeignKey("issues.id"), nullable=False)
     issue_number: Mapped[int] = mapped_column(nullable=False)
+
+
+class InvestigationMessage(Base):
+    """One turn of an investigation conversation, kept in order.
+
+    `summary` rows hold compacted older turns; the turns they replaced stay in the
+    table with `compacted=True` for the audit trail but are no longer sent to the model.
+    """
+
+    __tablename__ = "investigation_messages"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    investigation_id: Mapped[int] = mapped_column(
+        ForeignKey("investigations.id", ondelete="CASCADE"), nullable=False
+    )
+    role: Mapped[str] = mapped_column(String, nullable=False)  # user | assistant | summary
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    compacted: Mapped[bool] = mapped_column(nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now()
+    )

@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, the retrieval stack (5.1–5.16, harness-only for 5.16) and Week 7 core (7.1–7.9, 7.11, 7.12, 7.15) complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, 4.11, 4.12, a real tool-calling adapter), 6.7–6.14, 7.10, 7.13 endpoint, 7.14. Embeddings use a local hash embedder until an OpenAI key is set. Investigations (6.1–6.6) are done. Next: 6.8 duplicate finder, 6.11–6.13 multi-turn and compaction.
+**Current position:** Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, the retrieval stack (5.1–5.16, harness-only for 5.16) and Week 7 core (7.1–7.9, 7.11, 7.12, 7.15) complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, 4.11, 4.12, a real tool-calling adapter), 6.7, 6.9, 6.10, 6.14, 7.10, 7.13 endpoint, 7.14. Embeddings use a local hash embedder until an OpenAI key is set. Done in Week 6: 6.1–6.6, 6.8, 6.11–6.13. Next: 7.10 `tool_calls` table, then the DB-backed pending-action store for 7.13.
 
 ---
 
@@ -145,9 +145,9 @@ Flagship domain: **issue triage for maintainers**. Not generic chat-with-PDF.
 - [x] **6.8 Duplicate-issue finder** — new issue text in, similar issues + reasons out. **This is the demo feature.**
 - [ ] **6.9 Prompt-injection mitigation** — delimit issue text as data, validate output, test with an issue saying "ignore previous instructions." (Partly done: sources and question are delimited as data, the system prompt says so, and citations are validated. Still needs an end-to-end test against a real model.)
 - [ ] **6.10 Name the OWASP items** — LLM01 (Prompt Injection), LLM06 (Excessive Agency).
-- [ ] **6.11 Multi-turn** — store messages so users can ask follow-ups.
-- [ ] **6.12 Compaction** — when history exceeds budget, summarize older turns into a compact state block.
-- [ ] **6.13 Test compaction** — confirm it triggers at the threshold.
+- [x] **6.11 Multi-turn** — store messages so users can ask follow-ups.
+- [x] **6.12 Compaction** — when history exceeds budget, summarize older turns into a compact state block.
+- [x] **6.13 Test compaction** — confirm it triggers at the threshold.
 - [ ] **6.14 Deploy + video** — 2–3 min, framed as a business problem ("maintainers lose time finding duplicates").
 
 **Milestone:** application blitz #1. Referral outreach starts (5–10/week).
