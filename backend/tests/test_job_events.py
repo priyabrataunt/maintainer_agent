@@ -132,7 +132,7 @@ def test_endpoint_streams_a_finished_job(api, db_session, user):
 
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/event-stream")
-    assert response.headers["cache-control"] == "no-cache"
+    assert response.headers["cache-control"] == "no-cache, no-transform"
     parsed = events(body.strip().split("\n\n"))
     assert parsed[-1][0] == "done" and parsed[-1][1]["result"] == {"echo": {"x": 1}}
 

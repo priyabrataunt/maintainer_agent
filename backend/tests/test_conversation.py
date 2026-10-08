@@ -232,7 +232,9 @@ def test_endpoint_follow_up_and_history(api):
     )
 
     assert response.status_code == 200
-    assert response.json()["citations"] == [{"issue_number": 2, "title": "Add dark mode"}]
+    assert response.json()["citations"] == [
+        {"issue_number": 2, "title": "Add dark mode", "state": "open"}
+    ]
     history = client.get(f"/investigations/{investigation.id}/messages").json()
     assert [m["role"] for m in history] == ["user", "assistant", "user", "assistant"]
 

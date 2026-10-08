@@ -51,6 +51,8 @@ class Settings(BaseSettings):
     token_encryption_key: SecretStr = SecretStr("")
     # Where the browser is sent after a successful login (the UI's home page in production).
     post_login_redirect: str = "/me"
+    # Set true when served over HTTPS so browsers only send the auth cookies securely.
+    cookie_secure: bool = False
     test_database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test"
 
 

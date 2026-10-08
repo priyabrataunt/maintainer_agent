@@ -184,7 +184,9 @@ def test_endpoint_returns_answer_and_citations(api, db_session):
     assert response.status_code == 201
     body = response.json()
     assert body["status"] == "answered"
-    assert body["citations"] == [{"issue_number": 1, "title": "Crash on startup"}]
+    assert body["citations"] == [
+        {"issue_number": 1, "title": "Crash on startup", "state": "open"}
+    ]
     stored = db_session.get(Investigation, body["id"])
     assert stored.user_id is not None
 

@@ -25,6 +25,7 @@ class InvestigationCreate(BaseModel):
 class CitationRead(BaseModel):
     issue_number: int
     title: str
+    state: str | None = None
 
 
 class InvestigationRead(BaseModel):
@@ -64,7 +65,10 @@ def create_investigation(
         id=investigation.id,
         status=investigation.status,
         answer=investigation.answer,
-        citations=[CitationRead(issue_number=h.issue_number, title=h.title) for h in outcome.cited],
+        citations=[
+            CitationRead(issue_number=h.issue_number, title=h.title, state=h.state)
+            for h in outcome.cited
+        ],
     )
 
 
@@ -104,7 +108,10 @@ def ask_follow_up(
         id=outcome.investigation_id,
         status=outcome.status,
         answer=outcome.answer,
-        citations=[CitationRead(issue_number=h.issue_number, title=h.title) for h in outcome.cited],
+        citations=[
+            CitationRead(issue_number=h.issue_number, title=h.title, state=h.state)
+            for h in outcome.cited
+        ],
     )
 
 

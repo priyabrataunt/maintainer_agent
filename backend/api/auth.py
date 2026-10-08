@@ -66,7 +66,12 @@ def login():
     )
     response = RedirectResponse(f"{AUTHORIZE_URL}?{query}")
     response.set_cookie(
-        STATE_COOKIE, state, max_age=STATE_MAX_AGE_SECONDS, httponly=True, samesite="lax"
+        STATE_COOKIE,
+        state,
+        max_age=STATE_MAX_AGE_SECONDS,
+        httponly=True,
+        samesite="lax",
+        secure=settings.cookie_secure,
     )
     return response
 
@@ -122,6 +127,7 @@ def callback(
         max_age=settings.jwt_expire_minutes * 60,
         httponly=True,
         samesite="lax",
+        secure=settings.cookie_secure,
     )
     return response
 

@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** Phases 1–2 backend largely built: Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, Week 5 (5.1–5.16, 5.16 harness-only), Week 6 (6.1–6.6, 6.8, 6.11–6.13), Week 7 (7.1–7.16) and Week 8 (8.1–8.7, 8.11–8.14, 8.16, 8.17) and Week 9 backend (9.2, 9.5–9.12, 9.20) and Week 10 (10.1, 10.2, 10.4–10.6, 10.8). Pending: Docker (3.14–3.16), deploy (3.20–3.22), anything needing real LLM keys (4.1, 4.2, 4.11, 4.12, 6.7, 6.9, 6.10, 6.14), Week 8 (8.8 and 8.9 tracing, 8.10, 8.15, 8.18, 8.19), Week 9 (9.1, 9.3 connection, 9.4, 9.13–9.19 and 9.21: the Next.js UI), 10.3, 10.7, Weeks 11–12. Next: the Next.js UI (9.13–9.19).
+**Current position:** Phases 1–2 backend largely built: Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, Week 5 (5.1–5.16, 5.16 harness-only), Week 6 (6.1–6.6, 6.8, 6.11–6.13), Week 7 (7.1–7.16) and Week 8 (8.1–8.7, 8.11–8.14, 8.16, 8.17) and Week 9 (9.2, 9.5–9.18, 9.20) and Week 10 (10.1, 10.2, 10.4–10.6, 10.8). Pending: Docker (3.14–3.16), deploy (3.20–3.22), anything needing real LLM keys (4.1, 4.2, 4.11, 4.12, 6.7, 6.9, 6.10, 6.14), Week 8 (8.8 and 8.9 tracing, 8.10, 8.15, 8.18, 8.19), Week 9 (9.1, 9.3 connection, 9.4, 9.19 deploy, 9.21 demo video), 10.3, 10.7, Weeks 11–12. Next (buildable with mocks, no key needed): a real tool-calling model adapter and an agent-run job/endpoint, so the router, tools and confirm gate are reachable from the API and UI. Everything else pending needs keys, accounts or your input.
 
 ---
 
@@ -209,12 +209,12 @@ No framework this week.
 - [x] **9.10 Bounded retries with backoff** — in the worker.
 - [x] **9.11 Backpressure** — max-concurrency limit; 429 when the queue is full.
 - [x] **9.12 Sync job** — `POST /repositories/{id}/sync` runs ingestion + embedding as a job. Connects Week 1 to Week 5.
-- [ ] **9.13 Next.js app + login button**
-- [ ] **9.14 Repo list page**
-- [ ] **9.15 Chat page**
-- [ ] **9.16 Stream status and tokens** — over SSE.
-- [ ] **9.17 Sources panel** — links to the GitHub issues.
-- [ ] **9.18 Confirm / Reject buttons** — for pending actions.
+- [x] **9.13 Next.js app + login button**
+- [x] **9.14 Repo list page**
+- [x] **9.15 Chat page**
+- [x] **9.16 Stream status and tokens** — over SSE. (Status streams live over SSE, verified in a real browser through the proxy. Tokens do not: answers appear whole, because citations are validated against the full text first. Real token streaming would need provider streaming, see 4.12.)
+- [x] **9.17 Sources panel** — links to the GitHub issues.
+- [x] **9.18 Confirm / Reject buttons** — for pending actions. (Works against actions that exist; nothing in the UI creates agent runs yet, so in the browser test the pending actions were inserted directly.)
 - [ ] **9.19 Deploy frontend + worker** — Vercel for the frontend.
 - [x] **9.20 Architecture note** — queue, idempotency, retries.
 - [ ] **9.21 Refresh the demo video + resume v2**

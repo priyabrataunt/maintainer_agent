@@ -126,3 +126,17 @@ def test_repository_writes_require_login(anon_client, client):
     assert anon_client.patch(f"/repositories/{repo_id}", json={"name": "x"}).status_code == 401
     assert anon_client.delete(f"/repositories/{repo_id}").status_code == 401
     assert anon_client.get(f"/repositories/{repo_id}").status_code == 200
+
+
+def test_cookies_are_secure_when_configured(anon_client, monkeypatch):
+    monkeypatch.setattr(settings, "cookie_secure", True)
+
+    response = anon_client.get("/auth/login")
+
+    assert "secure" in response.headers["set-cookie"].lower()
+
+
+def test_cookies_are_not_secure_by_default_for_local_http(anon_client):
+    response = anon_client.get("/auth/login")
+
+    assert "secure" not in response.headers["set-cookie"].lower()

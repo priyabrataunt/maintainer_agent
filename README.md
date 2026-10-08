@@ -107,6 +107,31 @@ graph LR;
 - **Worker.** `uv run python -m backend.worker` (it runs RQ's scheduler, which is what moves
   delayed retries back onto the queue).
 
+## Web UI
+
+`frontend/` is a Next.js app: log in with GitHub, add and sync repositories, chat about a
+repository with a sources panel, and approve or reject proposed changes.
+
+```bash
+cd frontend && npm ci && npm run build && npm start      # http://localhost:3000
+```
+
+- **One origin.** The UI forwards `/api/*` to the backend (`BACKEND_URL`, default
+  `http://localhost:8000`), so the httpOnly login cookie is first-party and no CORS is needed.
+  Register `http://localhost:3000/api/auth/callback` as the OAuth app's callback URL, and set
+  `GITHUB_OAUTH_REDIRECT_URI` to the same value and `POST_LOGIN_REDIRECT=/`.
+- **Live status.** A question becomes a background job; the page follows it over
+  Server-Sent Events (`GET /jobs/{id}/events`) and shows queued, working and retry states. The
+  answer appears when it is complete, with its cited issues linked to GitHub. Answers are not
+  streamed token by token: citations are validated against the full answer first.
+- **Proposed changes.** Writes the agent proposes show up with Approve / Reject; nothing
+  runs until someone clicks Approve, and the server re-checks that the person owns the repository.
+
+Checks: `npm run typecheck`, `npm test` (unit tests), and `npm run e2e`: a real browser
+(Chromium via Playwright) against the real stack (FastAPI, Postgres, Redis, the worker, Next.js)
+with only the LLM and GitHub faked. It needs Postgres running and migrated, `redis-server`, and a
+built UI, and cleans up its own data.
+
 ## Using it from Claude (MCP)
 
 `backend/mcp_server.py` is a read-only MCP server (`search_issues`, `get_issue`,
