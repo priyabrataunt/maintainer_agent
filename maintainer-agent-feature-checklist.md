@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–3.13, 3.17–3.19, Week 4 (4.3–4.10, 4.13, 4.14), 5.3, 5.12–5.16 and Week 7 (7.1–7.9, 7.11, 7.12, 7.15) complete; 7.13 done except the HTTP endpoint. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, a real tool-calling adapter), DB-backed items (5.x tables, 6.x, 7.10, 7.13 endpoint, 7.14). Next: DB-backed work on local Postgres.
+**Current position:** Weeks 1–2 and 5 (except 5.16 real data), plus 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, 5.x retrieval stack (5.1–5.16) and Week 7 core (7.1–7.9, 7.11, 7.12, 7.15) complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, 4.11, 4.12, a real tool-calling adapter), 6.x RAG, 7.10, 7.13 endpoint, 7.14. Embeddings use a local hash embedder until an OpenAI key is set. Next: 6.1–6.6 (investigations, citations).
 
 ---
 
@@ -116,17 +116,17 @@ Keep these in mind; they are already applied below.
 
 Flagship domain: **issue triage for maintainers**. Not generic chat-with-PDF.
 
-- [ ] **5.1 Enable pgvector** — via migration.
-- [ ] **5.2 Build documents** — one per issue: title + body + comments.
+- [x] **5.1 Enable pgvector** — via migration.
+- [x] **5.2 Build documents** — one per issue: title + body + comments.
 - [x] **5.3 Chunker** — split by tokens with overlap. Unit test it.
-- [ ] **5.4 `document_chunks` table** — `text`, `embedding`, `repository_id`, `issue_id`, `source_type`, `metadata`.
-- [ ] **5.5 Embed and store one chunk**
-- [ ] **5.6 Batch embed a repo** — as a CLI command.
-- [ ] **5.7 Skip unchanged chunks** — content hash.
-- [ ] **5.8 Top-k cosine search**
-- [ ] **5.9 Metadata filters** — repo, state, source type.
-- [ ] **5.10 HNSW index** — confirm `EXPLAIN` shows it's used.
-- [ ] **5.11 Search endpoint** — `GET /repositories/{id}/search?q=`.
+- [x] **5.4 `document_chunks` table** — `text`, `embedding`, `repository_id`, `issue_id`, `source_type`, `metadata`.
+- [x] **5.5 Embed and store one chunk**
+- [x] **5.6 Batch embed a repo** — as a CLI command. (`python -m backend.retrieval.cli --owner O --repo R`; defaults to the local hash embedder, set `EMBEDDING_PROVIDER=openai` for real embeddings.)
+- [x] **5.7 Skip unchanged chunks** — content hash.
+- [x] **5.8 Top-k cosine search**
+- [x] **5.9 Metadata filters** — repo, state, source type.
+- [x] **5.10 HNSW index** — confirm `EXPLAIN` shows it's used. (Verified with seqscan disabled; recheck on real data volumes.)
+- [x] **5.11 Search endpoint** — `GET /repositories/{id}/search?q=`.
 - [x] **5.12 Token counter utility**
 - [x] **5.13 Token budgeter** — slots for system prompt, retrieved chunks, history, tool outputs; drop lowest-scoring chunks first when over budget.
 - [x] **5.14 Truncate tool outputs** — before they enter context: `…[truncated 3,200 tokens]`.

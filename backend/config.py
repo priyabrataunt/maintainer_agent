@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     # Exact model versions, never "latest" aliases.
     anthropic_model: str = "claude-sonnet-5-5"
     openai_model: str = "gpt-4.1-2025-04-14"
+    # "hash" = deterministic local embeddings for dev/tests; "openai" = real embeddings.
+    embedding_provider: str = "hash"
+    openai_embedding_model: str = "text-embedding-3-small"
     test_database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test"
 
 
