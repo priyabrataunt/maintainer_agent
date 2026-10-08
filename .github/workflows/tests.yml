@@ -1,0 +1,36 @@
+name: tests
+
+on: [push, pull_request]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: maintainer
+          POSTGRES_PASSWORD: maintainer
+          POSTGRES_DB: maintainer
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U maintainer"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      GITHUB_TOKEN: ci-placeholder-token
+      DATABASE_URL: postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer
+      TEST_DATABASE_URL: postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test
+      PGPASSWORD: maintainer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Create test database
+        run: psql -h localhost -U maintainer -d maintainer -c "CREATE DATABASE maintainer_test"
+      - name: Migrate both databases
+        run: |
+          uv run alembic upgrade head
+          DATABASE_URL="$TEST_DATABASE_URL" uv run alembic upgrade head
+      - run: uv run pytest -q

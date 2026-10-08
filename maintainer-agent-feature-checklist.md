@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–3.13 and 3.17 complete (Docker steps 3.14–3.16 skipped for now). Next action: **3.18 — CI tests with a Postgres service container**.
+**Current position:** 1.1–3.13 and 3.17–3.19 complete (Docker steps 3.14–3.16 skipped for now). Next: **3.20 — Deploy** (needs your hosting account).
 
 ---
 
@@ -79,8 +79,8 @@ Keep these in mind; they are already applied below.
 - [ ] **3.15 App in compose** — confirm `/db-health` works there.
 - [ ] **3.16 Migrations on container start**
 - [x] **3.17 CI: lint** — run `ruff` on every push.
-- [ ] **3.18 CI: tests** — pytest with a Postgres service container.
-- [ ] **3.19 CI badge in README**
+- [x] **3.18 CI: tests** — pytest with a Postgres service container.
+- [x] **3.19 CI badge in README**
 - [ ] **3.20 Deploy** — Render / Railway / Fly; confirm the public `/health` URL.
 - [ ] **3.21 Managed Postgres** — pgvector-enabled; run migrations against it.
 - [ ] **3.22 Auto-deploy** — only when CI passes on `main`.
