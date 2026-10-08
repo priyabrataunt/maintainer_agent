@@ -4,7 +4,6 @@ import pytest
 from pydantic import BaseModel
 
 from backend.agent.issue_tools import InMemoryIssueStore, IssueRecord, build_issue_registry
-from backend.agent.loop import run_agent
 from backend.agent.tools import Tool, ToolRegistry
 from backend.agent.types import ModelTurn, ScriptedModel, ToolCall
 
@@ -30,7 +29,7 @@ def test_search_tool_executes(registry):
     assert "#12 [open] Crash on startup" in result.output
 
 
-def test_one_round_trip_then_answer(registry):
+def test_one_round_trip_then_answer(registry, run_agent):
     model = ScriptedModel([call("search_issues", query="crash"), ModelTurn(text="It is #12.")])
 
     result = run_agent(model, registry, "what crashes?")
@@ -42,7 +41,7 @@ def test_one_round_trip_then_answer(registry):
     assert last["role"] == "tool" and "#12" in last["content"]
 
 
-def test_loop_continues_until_model_stops_calling_tools(registry):
+def test_loop_continues_until_model_stops_calling_tools(registry, run_agent):
     model = ScriptedModel([
         call("search_issues", query="crash"),
         call("get_issue", number=12),
@@ -55,7 +54,7 @@ def test_loop_continues_until_model_stops_calling_tools(registry):
     assert result.steps == 3
 
 
-def test_max_steps_returns_partial_answer(registry):
+def test_max_steps_returns_partial_answer(registry, run_agent):
     model = ScriptedModel([call("search_issues", query="crash")] * 20)
 
     result = run_agent(model, registry, "q", max_steps=3)
@@ -87,7 +86,7 @@ def test_invalid_args_are_returned_to_model(registry):
     assert "invalid arguments for get_issue" in result.output and "number" in result.output
 
 
-def test_model_can_recover_from_tool_error(registry):
+def test_model_can_recover_from_tool_error(registry, run_agent):
     model = ScriptedModel([
         call("get_issue", number=999),
         call("search_issues", query="crash"),

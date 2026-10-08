@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** Phases 1–2 backend largely built: Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, Week 5 (5.1–5.16, 5.16 harness-only), Week 6 (6.1–6.6, 6.8, 6.11–6.13), Week 7 (7.1–7.13, 7.15) and Week 8 evals (8.11–8.14, 8.16, 8.17) and Week 10 (10.1, 10.2, 10.4–10.6, 10.8). Pending: Docker (3.14–3.16), deploy (3.20–3.22), anything needing real LLM keys (4.1, 4.2, 4.11, 4.12, 6.7, 6.9, 6.10, 6.14), 7.14 user-token storage, Week 8 (LangGraph 8.1–8.9, 8.10, 8.15, 8.18, 8.19), Week 9 (MCP, queue, UI), 10.3, 10.7, Weeks 11–12. Next: 7.14 token storage, then LangGraph port (8.1–8.7).
+**Current position:** Phases 1–2 backend largely built: Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, Week 5 (5.1–5.16, 5.16 harness-only), Week 6 (6.1–6.6, 6.8, 6.11–6.13), Week 7 (7.1–7.13, 7.15, 7.16) and Week 8 (8.1–8.7, 8.11–8.14, 8.16, 8.17) and Week 10 (10.1, 10.2, 10.4–10.6, 10.8). Pending: Docker (3.14–3.16), deploy (3.20–3.22), anything needing real LLM keys (4.1, 4.2, 4.11, 4.12, 6.7, 6.9, 6.10, 6.14), 7.14 user-token storage, Week 8 (8.8 and 8.9 tracing, 8.10, 8.15, 8.18, 8.19), Week 9 (MCP, queue, UI), 10.3, 10.7, Weeks 11–12. Next: 7.14 user-token storage, then Week 9 (MCP server, queue, UI).
 
 ---
 
@@ -171,17 +171,17 @@ No framework this week.
 - [x] **7.13 Permission layer** — `post_comment`, `add_label`, `close_issue` pause and return a pending action; only run after `POST /investigations/{id}/confirm`. (DB-backed; `GET /investigations/{id}/actions` lists them. Confirmation fails closed with 503 until user tokens are stored, see 7.14.)
 - [ ] **7.14 Scope writes** — use the logged-in user's token; only repos they own. (`GitHubIssueWriter` is built and mock-tested. Still missing: storing each user's OAuth token and checking they own the repo.)
 - [x] **7.15 Tests with a scripted fake model** — loop terminates, max steps enforced, confirm gate blocks.
-- [ ] **7.16 Failure-modes README section** — loops, hallucinated tools, huge outputs.
+- [x] **7.16 Failure-modes README section** — loops, hallucinated tools, huge outputs.
 
 ## Week 8 — LangGraph + evals + observability
 
-- [ ] **8.1 Port to LangGraph** — the same tests must still pass.
-- [ ] **8.2 Confirm gate as an interrupt**
-- [ ] **8.3 Router node** — classify as lookup / action / escalate.
-- [ ] **8.4 Lookup sub-graph** — search tools only, small context.
-- [ ] **8.5 Action sub-graph** — read + write tools, confirm gate.
-- [ ] **8.6 Escalate sub-graph** — no tools; summarize for a human.
-- [ ] **8.7 Graph diagram in the README**
+- [x] **8.1 Port to LangGraph** — the same tests must still pass.
+- [x] **8.2 Confirm gate as an interrupt**
+- [x] **8.3 Router node** — classify as lookup / action / escalate.
+- [x] **8.4 Lookup sub-graph** — search tools only, small context.
+- [x] **8.5 Action sub-graph** — read + write tools, confirm gate. (Runs in queue mode inside the router; interrupt mode is available standalone via `InterruptibleRun`.)
+- [x] **8.6 Escalate sub-graph** — no tools; summarize for a human.
+- [x] **8.7 Graph diagram in the README**
 - [ ] **8.8 Langfuse setup** — trace one run.
 - [ ] **8.9 Trace everything** — every LLM and tool call; store the trace id on the investigation.
 - [ ] **8.10 Build the eval set** — 30–50 cases from real traces, each with expected issue ids and expected tools. (Your part: write 30–50 real cases. `python -m backend.evals.cli load --owner O --repo R --file cases.json` loads them.)

@@ -7,7 +7,7 @@ from backend.agent.issue_tools import (
     add_code_tools,
     build_issue_registry,
 )
-from backend.agent.loop import apply_budget, run_agent
+from backend.agent.loop import apply_budget
 from backend.agent.types import ModelTurn, ScriptedModel, ToolCall
 from backend.agent.write_tools import (
     InMemoryIssueWriter,
@@ -52,7 +52,7 @@ def test_gated_tools_do_not_run_without_confirmation(registry, writer, name, arg
     assert writer.actions == []
 
 
-def test_agent_run_returns_pending_actions_without_executing(registry, writer):
+def test_agent_run_returns_pending_actions_without_executing(registry, writer, run_agent):
     model = ScriptedModel([
         call("close_issue", number=5),
         ModelTurn(text="I proposed closing #5; awaiting approval."),
@@ -65,7 +65,7 @@ def test_agent_run_returns_pending_actions_without_executing(registry, writer):
     assert "NOT run" in model.seen[1][-1]["content"]
 
 
-def test_confirm_runs_the_action_exactly_once(registry, writer):
+def test_confirm_runs_the_action_exactly_once(registry, writer, run_agent):
     model = ScriptedModel([call("add_label", number=5, label="bug"), ModelTurn(text="queued")])
     result = run_agent(model, registry, "label it")
     store = PendingActionStore()
@@ -80,7 +80,7 @@ def test_confirm_runs_the_action_exactly_once(registry, writer):
     assert len(writer.actions) == 1
 
 
-def test_reject_prevents_execution(registry, writer):
+def test_reject_prevents_execution(registry, writer, run_agent):
     result = run_agent(
         ScriptedModel([call("close_issue", number=5), ModelTurn(text="ok")]), registry, "q"
     )
@@ -142,7 +142,7 @@ def test_apply_budget_reports_failure_when_cannot_fit():
     assert not apply_budget(messages, max_tokens=10)
 
 
-def test_agent_stops_with_partial_when_context_cannot_fit():
+def test_agent_stops_with_partial_when_context_cannot_fit(run_agent):
     registry = build_issue_registry(InMemoryIssueStore([]))
     model = ScriptedModel([ModelTurn(text="never")])
 
@@ -152,7 +152,7 @@ def test_agent_stops_with_partial_when_context_cannot_fit():
     assert model.seen == []
 
 
-def test_agent_tracks_input_tokens():
+def test_agent_tracks_input_tokens(run_agent):
     registry = build_issue_registry(InMemoryIssueStore([]))
     result = run_agent(ScriptedModel([ModelTurn(text="hi")]), registry, "question")
 
