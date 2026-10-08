@@ -27,3 +27,15 @@ def test_token_is_not_exposed_in_repr(monkeypatch):
     settings = Settings(_env_file=None)
 
     assert "ghp_secret_value" not in repr(settings)
+
+
+def test_reads_oauth_credentials_from_environment(monkeypatch):
+    monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
+    monkeypatch.setenv("GITHUB_OAUTH_CLIENT_ID", "client-id")
+    monkeypatch.setenv("GITHUB_OAUTH_CLIENT_SECRET", "client-secret")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.github_oauth_client_id == "client-id"
+    assert settings.github_oauth_client_secret.get_secret_value() == "client-secret"
+    assert "client-secret" not in repr(settings)

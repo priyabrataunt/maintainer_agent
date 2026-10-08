@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–3.5 complete. Next action: **3.6 — Register the OAuth app** (needs a GitHub OAuth app created by the user first).
+**Current position:** 1.1–3.6 complete. Next action: **3.7 — GET /auth/login**.
 
 ---
 
@@ -67,7 +67,7 @@ Keep these in mind; they are already applied below.
 - [x] **3.3 Index + EXPLAIN** — add an index on `issues(repository_id, state)`, compare `EXPLAIN` output before and after.
 - [x] **3.4 Stats endpoint** — `GET /repositories/{id}/stats`: open/closed counts via JOIN + GROUP BY.
 - [x] **3.5 `issue_comments` table + loader** — you need comments as documents in Week 5.
-- [ ] **3.6 Register the OAuth app** — client id/secret into settings.
+- [x] **3.6 Register the OAuth app** — client id/secret into settings. (Settings fields done; you still create the OAuth app and fill `.env`.)
 - [ ] **3.7 `GET /auth/login`** — redirect to GitHub's authorize URL with a random `state` stored in a cookie.
 - [ ] **3.8 `GET /auth/callback`** — verify `state`, exchange the code for a token, fetch the user profile.
 - [ ] **3.9 `users` model + migration** — create-or-find by `github_id`.
