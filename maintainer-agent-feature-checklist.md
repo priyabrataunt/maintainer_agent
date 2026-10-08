@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–3.13, 3.17–3.19, Week 4 (4.3–4.6, 4.8–4.10, 4.14), 5.3, 5.12–5.16 and Week 7 (7.1–7.9, 7.11, 7.12, 7.15) complete; 7.13 done except the HTTP endpoint. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, a real tool-calling adapter), DB-backed items (4.7, 4.13, 5.x tables, 6.x, 7.10, 7.13 endpoint, 7.14). Next: DB-backed work on local Postgres.
+**Current position:** 1.1–3.13, 3.17–3.19, Week 4 (4.3–4.10, 4.13, 4.14), 5.3, 5.12–5.16 and Week 7 (7.1–7.9, 7.11, 7.12, 7.15) complete; 7.13 done except the HTTP endpoint. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, a real tool-calling adapter), DB-backed items (5.x tables, 6.x, 7.10, 7.13 endpoint, 7.14). Next: DB-backed work on local Postgres.
 
 ---
 
@@ -103,13 +103,13 @@ Keep these in mind; they are already applied below.
 - [x] **4.4 Pin model versions** — exact versions in settings. Never "latest" in code.
 - [x] **4.5 Log tokens + latency** — tokens in, tokens out, duration for every call.
 - [x] **4.6 Cost calculator** — driven by a price table in config.
-- [ ] **4.7 `model_calls` table** — persist every call.
+- [x] **4.7 `model_calls` table** — persist every call.
 - [x] **4.8 Structured output** — issue triage returning `{type, priority, summary}`, validated with Pydantic.
 - [x] **4.9 Retry with backoff** — on 429/5xx, for both the LLM client and the GitHub client.
 - [x] **4.10 Provider fallback** — if provider A fails, use provider B.
 - [ ] **4.11 Prompt caching** — static system prompt first; check the cached-token count in the response.
 - [ ] **4.12 Streaming** — `POST /issues/{id}/summarize/stream` over SSE.
-- [ ] **4.13 `prompt_versions` table** — record the prompt version on each `model_call`.
+- [x] **4.13 `prompt_versions` table** — record the prompt version on each `model_call`.
 - [x] **4.14 Tests with a fake provider** — no network.
 
 ## Week 5 — Retrieval + context engineering
