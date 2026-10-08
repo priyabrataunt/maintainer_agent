@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, the retrieval stack (5.1–5.16, harness-only for 5.16) and Week 7 core (7.1–7.9, 7.11, 7.12, 7.15) complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, 4.11, 4.12, a real tool-calling adapter), 6.7, 6.9, 6.10, 6.14, 7.10, 7.13 endpoint, 7.14. Embeddings use a local hash embedder until an OpenAI key is set. Done in Week 6: 6.1–6.6, 6.8, 6.11–6.13. Next: 7.10 `tool_calls` table, then the DB-backed pending-action store for 7.13.
+**Current position:** Phases 1–2 backend largely built: Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, Week 5 (5.1–5.16, 5.16 harness-only), Week 6 (6.1–6.6, 6.8, 6.11–6.13), Week 7 (7.1–7.13, 7.15) and Week 10 (10.1, 10.2, 10.4–10.6, 10.8). Pending: Docker (3.14–3.16), deploy (3.20–3.22), anything needing real LLM keys (4.1, 4.2, 4.11, 4.12, 6.7, 6.9, 6.10, 6.14), 7.14 user-token storage, Week 8 (LangGraph, evals, tracing), Week 9 (MCP, queue, UI), 10.3, 10.7, Weeks 11–12. Next: Week 8 eval tables and runner (8.10–8.13, 8.16).
 
 ---
 
@@ -229,14 +229,14 @@ No framework this week.
 
 ## Week 10 — SQL on your own logs
 
-- [ ] **10.1 Cost per investigation** — JOIN on `model_calls`.
-- [ ] **10.2 Latency percentiles** — p50/p95 with `percentile_cont`.
+- [x] **10.1 Cost per investigation** — JOIN on `model_calls`.
+- [x] **10.2 Latency percentiles** — p50/p95 with `percentile_cont`.
 - [ ] **10.3 Retrieval hit rate** — from your eval results.
-- [ ] **10.4 Tool failure rate by tool** — ranked with a window function.
-- [ ] **10.5 Daily cost** — with a running total.
-- [ ] **10.6 CTE** — find runs that hit the max-step limit.
-- [ ] **10.7 `EXPLAIN ANALYZE`** — on the slowest query; fix it.
-- [ ] **10.8 `GET /admin/metrics`** — expose these numbers.
+- [x] **10.4 Tool failure rate by tool** — ranked with a window function.
+- [x] **10.5 Daily cost** — with a running total.
+- [x] **10.6 CTE** — find runs that hit the max-step limit. (Proxy: investigations with >= 8 tool calls; there is no stored "hit the cap" flag yet.)
+- [ ] **10.7 `EXPLAIN ANALYZE`** — on the slowest query; fix it. (Indexes on `model_calls` and `tool_calls` are in place; needs real data volume to be meaningful.)
+- [x] **10.8 `GET /admin/metrics`** — expose these numbers.
 
 ## Week 11 — Reps + polish
 

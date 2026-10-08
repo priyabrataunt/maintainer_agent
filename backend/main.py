@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from backend.api.actions import router as actions_router
+from backend.api.admin import router as admin_router
 from backend.api.auth import router as auth_router
 from backend.api.duplicates import router as duplicates_router
 from backend.api.investigations import router as investigations_router
@@ -19,3 +20,4 @@ app.include_router(search_router)
 app.include_router(investigations_router)
 app.include_router(duplicates_router)
 app.include_router(actions_router)
+app.include_router(admin_router)

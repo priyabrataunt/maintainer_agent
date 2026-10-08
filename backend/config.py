@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     retrieval_min_score: float = 0.2
     # Conversation history above this many tokens is compacted into a summary.
     history_budget_tokens: int = 1500
+    # Comma-separated GitHub logins allowed to view /admin/metrics. Empty = nobody.
+    admin_logins: str = ""
     test_database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test"
 
 
