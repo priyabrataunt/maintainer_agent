@@ -2,7 +2,6 @@ import ast
 from pathlib import Path
 from typing import Literal
 
-
 Severity = Literal["info", "warning", "error"]
 
 RULE_SEVERITIES: dict[str, Severity] = {

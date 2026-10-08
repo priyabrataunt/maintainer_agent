@@ -8,6 +8,8 @@ from sqlalchemy.orm import Session
 from backend.db import get_db
 from backend.services.project_analyzer import (
     analyze_project as analyze_project_service,
+)
+from backend.services.project_analyzer import (
     analyze_project_folder as analyze_project_folder_service,
 )
 

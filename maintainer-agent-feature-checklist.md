@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–3.6 complete. Next action: **3.7 — GET /auth/login**.
+**Current position:** 1.1–3.13 and 3.17 complete (Docker steps 3.14–3.16 skipped for now). Next action: **3.18 — CI tests with a Postgres service container**.
 
 ---
 
@@ -68,17 +68,17 @@ Keep these in mind; they are already applied below.
 - [x] **3.4 Stats endpoint** — `GET /repositories/{id}/stats`: open/closed counts via JOIN + GROUP BY.
 - [x] **3.5 `issue_comments` table + loader** — you need comments as documents in Week 5.
 - [x] **3.6 Register the OAuth app** — client id/secret into settings. (Settings fields done; you still create the OAuth app and fill `.env`.)
-- [ ] **3.7 `GET /auth/login`** — redirect to GitHub's authorize URL with a random `state` stored in a cookie.
-- [ ] **3.8 `GET /auth/callback`** — verify `state`, exchange the code for a token, fetch the user profile.
-- [ ] **3.9 `users` model + migration** — create-or-find by `github_id`.
-- [ ] **3.10 Issue a JWT** — in an httpOnly cookie.
-- [ ] **3.11 `current_user` dependency + `GET /me`**
-- [ ] **3.12 Protect endpoints** — POST, PATCH, DELETE on repositories.
-- [ ] **3.13 Mocked OAuth test** — test the callback with GitHub's token/user calls mocked (`respx`).
+- [x] **3.7 `GET /auth/login`** — redirect to GitHub's authorize URL with a random `state` stored in a cookie.
+- [x] **3.8 `GET /auth/callback`** — verify `state`, exchange the code for a token, fetch the user profile.
+- [x] **3.9 `users` model + migration** — create-or-find by `github_id`.
+- [x] **3.10 Issue a JWT** — in an httpOnly cookie.
+- [x] **3.11 `current_user` dependency + `GET /me`**
+- [x] **3.12 Protect endpoints** — POST, PATCH, DELETE on repositories.
+- [x] **3.13 Mocked OAuth test** — test the callback with GitHub's token/user calls mocked (`respx`).
 - [ ] **3.14 Dockerfile** — confirm `/health` works inside the container.
 - [ ] **3.15 App in compose** — confirm `/db-health` works there.
 - [ ] **3.16 Migrations on container start**
-- [ ] **3.17 CI: lint** — run `ruff` on every push.
+- [x] **3.17 CI: lint** — run `ruff` on every push.
 - [ ] **3.18 CI: tests** — pytest with a Postgres service container.
 - [ ] **3.19 CI badge in README**
 - [ ] **3.20 Deploy** — Render / Railway / Fly; confirm the public `/health` URL.

@@ -13,7 +13,7 @@ from backend.models.repository import Repository
 def load_repository_data(
     owner: str, name: str, db: Session, data_dir: Path = DATA_DIR
 ) -> int:
-    """Upsert a repository and its issues from the step-1 ingestion files. Returns the repository id."""
+    """Upsert a repository and its issues from the step-1 files; return the repository id."""
     repo_dir = data_dir / f"{owner}_{name}"
     repo_data = json.loads((repo_dir / "repo.json").read_text())
 

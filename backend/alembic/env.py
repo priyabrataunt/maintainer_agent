@@ -1,15 +1,14 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 from backend.config import settings
-from backend.models.base import Base
 from backend.models import issue as issue_models  # noqa: F401
 from backend.models import issue_comment as issue_comment_models  # noqa: F401
 from backend.models import repository as repository_models  # noqa: F401
+from backend.models import user as user_models  # noqa: F401
+from backend.models.base import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

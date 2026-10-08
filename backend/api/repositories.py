@@ -3,9 +3,11 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from backend.api.auth import current_user
 from backend.db import get_db
 from backend.models.issue import Issue
 from backend.models.repository import Repository
+from backend.models.user import User
 from backend.schemas.repository import (
     RepositoryCreate,
     RepositoryRead,
@@ -24,7 +26,11 @@ def _get_repository_or_404(repository_id: int, db: Session) -> Repository:
 
 
 @router.post("/repositories", response_model=RepositoryRead, status_code=201)
-def create_repository(payload: RepositoryCreate, db: Session = Depends(get_db)):
+def create_repository(
+    payload: RepositoryCreate,
+    db: Session = Depends(get_db),
+    _user: User = Depends(current_user),
+):
     repo = Repository(**payload.model_dump())
     db.add(repo)
     try:
@@ -56,7 +62,10 @@ def get_repository(repository_id: int, db: Session = Depends(get_db)):
 
 @router.patch("/repositories/{repository_id}", response_model=RepositoryRead)
 def update_repository(
-    repository_id: int, payload: RepositoryUpdate, db: Session = Depends(get_db)
+    repository_id: int,
+    payload: RepositoryUpdate,
+    db: Session = Depends(get_db),
+    _user: User = Depends(current_user),
 ):
     repo = _get_repository_or_404(repository_id, db)
     for field, value in payload.model_dump(exclude_unset=True).items():
@@ -67,7 +76,11 @@ def update_repository(
 
 
 @router.delete("/repositories/{repository_id}", status_code=204)
-def delete_repository(repository_id: int, db: Session = Depends(get_db)):
+def delete_repository(
+    repository_id: int,
+    db: Session = Depends(get_db),
+    _user: User = Depends(current_user),
+):
     repo = _get_repository_or_404(repository_id, db)
     db.delete(repo)
     db.commit()
