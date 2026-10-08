@@ -1,10 +1,12 @@
 from collections.abc import Callable
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from backend.agent.github_writer import GitHubIssueWriter
 from backend.agent.tools import ToolRegistry
 from backend.agent.write_tools import build_write_registry
 from backend.api.auth import current_user
@@ -13,6 +15,7 @@ from backend.db import get_db
 from backend.models.agent_run import PendingAction
 from backend.models.repository import Repository
 from backend.models.user import User
+from backend.security import decrypt_token, token_storage_enabled
 from backend.services.actions import ActionAlreadyResolved, confirm_action, reject_action
 
 router = APIRouter()
@@ -20,19 +23,45 @@ router = APIRouter()
 RegistryFactory = Callable[[str, str, User], ToolRegistry]
 
 
-def get_registry_factory() -> RegistryFactory:
-    """Builds the write tools for (owner, repo, user).
+def get_github_transport() -> httpx.BaseTransport | None:
+    """Overridden in tests to stub GitHub; None means real network."""
+    return None
 
-    Real GitHub writes need the confirming user's own OAuth token, which this app does
-    not store yet, so until it does confirmations fail closed with 503.
+
+def get_registry_factory(
+    transport: httpx.BaseTransport | None = Depends(get_github_transport),
+) -> RegistryFactory:
+    """Builds the write tools for (owner, repo, user), acting as that user on GitHub.
+
+    Fails closed: no storage key, no stored token, an undecryptable token, or a user who
+    does not own/administer the repository all refuse the write before anything runs.
     """
 
-    def unavailable(owner: str, repo: str, user: User) -> ToolRegistry:
-        raise HTTPException(
-            status_code=503, detail="GitHub write access is not configured for this user"
-        )
+    def build(owner: str, repo: str, user: User) -> ToolRegistry:
+        if not token_storage_enabled():
+            raise HTTPException(
+                status_code=503, detail="GitHub write access is not configured on this server"
+            )
+        token = decrypt_token(user.github_token_encrypted) if user.github_token_encrypted else None
+        if token is None:
+            raise HTTPException(
+                status_code=403,
+                detail="No GitHub write access on record; log in again with write access enabled",
+            )
+        writer = GitHubIssueWriter(owner, repo, token, transport=transport)
+        try:
+            allowed = writer.can_administer(user.login)
+        except httpx.HTTPError as exc:
+            raise HTTPException(
+                status_code=502, detail="Could not verify access on GitHub"
+            ) from exc
+        if not allowed:
+            raise HTTPException(
+                status_code=403, detail=f"You do not own or administer {owner}/{repo}"
+            )
+        return build_write_registry(writer)
 
-    return unavailable
+    return build
 
 
 class ActionRead(BaseModel):
@@ -85,7 +114,3 @@ def decide_action(
     if action is None:
         raise HTTPException(status_code=404, detail="Action not found")
     return action
-
-
-def registry_for_writer(writer) -> ToolRegistry:
-    return build_write_registry(writer)

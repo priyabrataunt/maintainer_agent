@@ -15,13 +15,27 @@ class GitHubIssueWriter:
         token: str,
         transport: httpx.BaseTransport | None = None,
     ) -> None:
-        self._base = f"/repos/{owner}/{repo}/issues"
+        self._repo_path = f"/repos/{owner}/{repo}"
+        self._base = f"{self._repo_path}/issues"
         self._client = httpx.Client(
             base_url=GITHUB_API_URL,
             headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
             timeout=15,
             transport=transport,
         )
+
+    def can_administer(self, login: str) -> bool:
+        """True if `login` owns the repository or has admin permission on it.
+
+        Asked of GitHub with the user's own token, so it reflects their real access.
+        """
+        response = self._client.get(self._repo_path)
+        if response.status_code in (401, 403, 404):
+            return False
+        response.raise_for_status()
+        data = response.json()
+        is_owner = (data.get("owner") or {}).get("login", "").lower() == login.lower()
+        return is_owner or bool((data.get("permissions") or {}).get("admin"))
 
     def _send(self, method: str, path: str, payload: dict) -> None:
         response = self._client.request(method, f"{self._base}{path}", json=payload)

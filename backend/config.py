@@ -42,6 +42,13 @@ class Settings(BaseSettings):
     # Extra attempts after the first for a failing job, with growing delays between them.
     job_max_retries: int = 3
     job_retry_delays_s: str = "10,30,90"
+    # Scopes requested at login. Writing to GitHub needs "public_repo" (or "repo"); the default
+    # is read-only on purpose, so write access is an explicit opt-in.
+    github_oauth_scopes: str = "read:user"
+    # Fernet key used to encrypt stored GitHub tokens. Empty = tokens are never stored and
+    # GitHub writes stay disabled. Generate with:
+    #   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+    token_encryption_key: SecretStr = SecretStr("")
     test_database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test"
 
 

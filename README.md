@@ -49,6 +49,21 @@ graph reproduces; both are tested against the same suite), `backend/agent/tools.
   resumes with approve/reject. All decisions are collected before anything executes, so
   resuming never re-runs a tool.
 
+### Writing to GitHub (opt-in)
+
+Confirmed actions act **as the logged-in user**, never as the app, and only on repositories
+that user owns or administers.
+
+- Off by default. Login requests only `read:user`. To enable writes set
+  `GITHUB_OAUTH_SCOPES=read:user,public_repo` and `TOKEN_ENCRYPTION_KEY` (a Fernet key; see
+  `.env.example`). Users then log in again to grant the broader scope.
+- The user's token is encrypted at rest (Fernet) and only stored when both of those are set.
+  `POST /auth/logout` deletes it. If the key changes, stored tokens become unreadable and the
+  user is asked to log in again.
+- At confirm time the server asks GitHub, with the user's own token, whether they own or
+  administer the repository. If not (or the check fails) nothing is written and the action
+  stays pending.
+
 ### Failure modes the agent is built to survive
 
 | Failure | What happens |

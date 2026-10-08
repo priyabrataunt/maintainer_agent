@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** Phases 1–2 backend largely built: Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, Week 5 (5.1–5.16, 5.16 harness-only), Week 6 (6.1–6.6, 6.8, 6.11–6.13), Week 7 (7.1–7.13, 7.15, 7.16) and Week 8 (8.1–8.7, 8.11–8.14, 8.16, 8.17) and Week 9 backend (9.2, 9.5–9.12, 9.20) and Week 10 (10.1, 10.2, 10.4–10.6, 10.8). Pending: Docker (3.14–3.16), deploy (3.20–3.22), anything needing real LLM keys (4.1, 4.2, 4.11, 4.12, 6.7, 6.9, 6.10, 6.14), 7.14 user-token storage, Week 8 (8.8 and 8.9 tracing, 8.10, 8.15, 8.18, 8.19), Week 9 (9.1, 9.3 connection, 9.4, 9.13–9.19 and 9.21: the Next.js UI), 10.3, 10.7, Weeks 11–12. Next: 7.14 user-token storage, or the Next.js UI (9.13–9.19).
+**Current position:** Phases 1–2 backend largely built: Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, Week 5 (5.1–5.16, 5.16 harness-only), Week 6 (6.1–6.6, 6.8, 6.11–6.13), Week 7 (7.1–7.16) and Week 8 (8.1–8.7, 8.11–8.14, 8.16, 8.17) and Week 9 backend (9.2, 9.5–9.12, 9.20) and Week 10 (10.1, 10.2, 10.4–10.6, 10.8). Pending: Docker (3.14–3.16), deploy (3.20–3.22), anything needing real LLM keys (4.1, 4.2, 4.11, 4.12, 6.7, 6.9, 6.10, 6.14), Week 8 (8.8 and 8.9 tracing, 8.10, 8.15, 8.18, 8.19), Week 9 (9.1, 9.3 connection, 9.4, 9.13–9.19 and 9.21: the Next.js UI), 10.3, 10.7, Weeks 11–12. Next: the Next.js UI (9.13–9.19).
 
 ---
 
@@ -168,8 +168,8 @@ No framework this week.
 - [x] **7.10 `tool_calls` table** — args, result size, duration.
 - [x] **7.11 Agent state object** — messages, steps, tokens; apply the budgeter at each step.
 - [x] **7.12 Dry-run write tools** — `draft_comment`, `suggest_labels`.
-- [x] **7.13 Permission layer** — `post_comment`, `add_label`, `close_issue` pause and return a pending action; only run after `POST /investigations/{id}/confirm`. (DB-backed; `GET /investigations/{id}/actions` lists them. Confirmation fails closed with 503 until user tokens are stored, see 7.14.)
-- [ ] **7.14 Scope writes** — use the logged-in user's token; only repos they own. (`GitHubIssueWriter` is built and mock-tested. Still missing: storing each user's OAuth token and checking they own the repo.)
+- [x] **7.13 Permission layer** — `post_comment`, `add_label`, `close_issue` pause and return a pending action; only run after `POST /investigations/{id}/confirm`. (DB-backed; `GET /investigations/{id}/actions` lists them. Confirmation runs as the confirming user; see 7.14.)
+- [x] **7.14 Scope writes** — use the logged-in user's token; only repos they own. (Opt-in via `GITHUB_OAUTH_SCOPES` + `TOKEN_ENCRYPTION_KEY`; tokens are Fernet-encrypted and removed on logout; ownership is verified against GitHub at confirm time.)
 - [x] **7.15 Tests with a scripted fake model** — loop terminates, max steps enforced, confirm gate blocks.
 - [x] **7.16 Failure-modes README section** — loops, hallucinated tools, huge outputs.
 

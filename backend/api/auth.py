@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 
 import httpx
 from fastapi import APIRouter, Cookie, Depends, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -11,7 +11,12 @@ from sqlalchemy.orm import Session
 from backend.config import settings
 from backend.db import get_db
 from backend.models.user import User
-from backend.security import create_access_token, decode_access_token
+from backend.security import (
+    create_access_token,
+    decode_access_token,
+    encrypt_token,
+    token_storage_enabled,
+)
 
 router = APIRouter()
 
@@ -56,7 +61,7 @@ def login():
             "client_id": settings.github_oauth_client_id,
             "redirect_uri": settings.github_oauth_redirect_uri,
             "state": state,
-            "scope": "read:user",
+            "scope": settings.github_oauth_scopes,
         }
     )
     response = RedirectResponse(f"{AUTHORIZE_URL}?{query}")
@@ -102,6 +107,10 @@ def callback(
         db.add(user)
     user.login = profile["login"]
     user.avatar_url = profile.get("avatar_url")
+    # Keep the GitHub token only when it can be encrypted and was granted write access.
+    user.github_token_encrypted = (
+        encrypt_token(github_token) if token_storage_enabled() and _can_write() else None
+    )
     db.commit()
     db.refresh(user)
 
@@ -114,6 +123,21 @@ def callback(
         httponly=True,
         samesite="lax",
     )
+    return response
+
+
+def _can_write() -> bool:
+    granted = {s.strip() for s in settings.github_oauth_scopes.replace(" ", ",").split(",")}
+    return bool(granted & {"public_repo", "repo"})
+
+
+@router.post("/auth/logout", status_code=204)
+def logout(user: User = Depends(current_user), db: Session = Depends(get_db)):
+    """Forget the stored GitHub token and clear the login cookie."""
+    user.github_token_encrypted = None
+    db.commit()
+    response = Response(status_code=204)
+    response.delete_cookie(TOKEN_COOKIE)
     return response
 
 
