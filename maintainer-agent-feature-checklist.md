@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** 1.1–3.13, 3.17–3.19, Week 4 (4.3–4.6, 4.8–4.10, 4.14), 5.3 and 5.12 complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2), DB-backed items (4.7, 4.13, 5.x tables). Next pure-logic items: **5.13 token budgeter**, **5.14 tool-output truncation**.
+**Current position:** 1.1–3.13, 3.17–3.19, Week 4 (4.3–4.6, 4.8–4.10, 4.14), 5.3, 5.12–5.15 complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2), DB-backed items (4.7, 4.13, 5.x tables). Next pure-logic items: **Week 7 agent loop** (7.1–7.9, 7.11, 7.15) with a scripted fake model.
 
 ---
 
@@ -128,9 +128,9 @@ Flagship domain: **issue triage for maintainers**. Not generic chat-with-PDF.
 - [ ] **5.10 HNSW index** — confirm `EXPLAIN` shows it's used.
 - [ ] **5.11 Search endpoint** — `GET /repositories/{id}/search?q=`.
 - [x] **5.12 Token counter utility**
-- [ ] **5.13 Token budgeter** — slots for system prompt, retrieved chunks, history, tool outputs; drop lowest-scoring chunks first when over budget.
-- [ ] **5.14 Truncate tool outputs** — before they enter context: `…[truncated 3,200 tokens]`.
-- [ ] **5.15 Log the budget breakdown** — per request. Feeds the Wk8 cost table.
+- [x] **5.13 Token budgeter** — slots for system prompt, retrieved chunks, history, tool outputs; drop lowest-scoring chunks first when over budget.
+- [x] **5.14 Truncate tool outputs** — before they enter context: `…[truncated 3,200 tokens]`.
+- [x] **5.15 Log the budget breakdown** — per request. Feeds the Wk8 cost table.
 - [ ] **5.16 Mini retrieval eval** — 10 queries with known correct issues, scored as hit@5.
 
 ## Week 6 — RAG + first milestone
