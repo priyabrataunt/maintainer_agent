@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     # GitHub writes stay disabled. Generate with:
     #   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
     token_encryption_key: SecretStr = SecretStr("")
+    # Where the browser is sent after a successful login (the UI's home page in production).
+    post_login_redirect: str = "/me"
     test_database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test"
 
 

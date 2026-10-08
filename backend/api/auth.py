@@ -114,7 +114,7 @@ def callback(
     db.commit()
     db.refresh(user)
 
-    response = RedirectResponse("/me", status_code=303)
+    response = RedirectResponse(settings.post_login_redirect, status_code=303)
     response.delete_cookie(STATE_COOKIE)
     response.set_cookie(
         TOKEN_COOKIE,

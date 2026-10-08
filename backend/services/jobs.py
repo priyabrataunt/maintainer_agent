@@ -84,6 +84,10 @@ def _investigation(db: Session, payload: dict) -> dict:
         "status": investigation.status,
         "answer": investigation.answer,
         "citations": [h.issue_number for h in outcome.cited],
+        "sources": [
+            {"issue_number": h.issue_number, "title": h.title, "state": h.state}
+            for h in outcome.cited
+        ],
     }
 
 

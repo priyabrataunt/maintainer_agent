@@ -1,6 +1,11 @@
+import asyncio
+import json
+from collections.abc import AsyncIterator, Callable
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Response
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 from rq import Queue
 from sqlalchemy.orm import Session
@@ -10,7 +15,7 @@ from backend.api.repositories import _get_repository_or_404
 from backend.db import get_db
 from backend.models.job import Job
 from backend.models.user import User
-from backend.services.jobs import IdempotencyConflict, QueueFull, enqueue_job, get_queue
+from backend.services.jobs import IdempotencyConflict, QueueFull, deps, enqueue_job, get_queue
 
 router = APIRouter()
 
@@ -97,3 +102,69 @@ def get_job(
     if job is None or job.user_id != user.id:
         raise HTTPException(status_code=404, detail="Job not found")
     return job
+
+
+# ---- live status over Server-Sent Events ----
+
+TERMINAL_STATUSES = ("succeeded", "failed")
+
+
+def _sse(event: str, data: dict) -> str:
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+
+async def stream_job_events(
+    read_state: Callable[[], dict | None],
+    poll_interval_s: float = 0.5,
+    heartbeat_every_s: float = 15.0,
+    max_seconds: float = 600.0,
+) -> AsyncIterator[str]:
+    """Yield SSE frames: `status` when the status/attempts change, a keep-alive comment while
+    waiting, and a final `done` (or `timeout`) event, after which the stream ends."""
+    elapsed = since_heartbeat = 0.0
+    last: tuple | None = None
+    while elapsed <= max_seconds:
+        state = await run_in_threadpool(read_state)
+        if state is None:
+            yield _sse("error", {"detail": "Job not found"})
+            return
+        marker = (state["status"], state["attempts"])
+        if marker != last:
+            last = marker
+            since_heartbeat = 0.0
+            yield _sse("status", {"status": state["status"], "attempts": state["attempts"]})
+        if state["status"] in TERMINAL_STATUSES:
+            yield _sse("done", state)
+            return
+        if since_heartbeat >= heartbeat_every_s:
+            since_heartbeat = 0.0
+            yield ": keep-alive\n\n"
+        await asyncio.sleep(poll_interval_s)
+        elapsed += poll_interval_s
+        since_heartbeat += poll_interval_s
+    yield _sse("timeout", {"detail": "Still running; poll GET /jobs/{id} for the result"})
+
+
+@router.get("/jobs/{job_id}/events")
+async def job_events(
+    job_id: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+):
+    job = db.get(Job, job_id)
+    if job is None or job.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    def read_state() -> dict | None:
+        with deps.session_factory() as session:
+            current = session.get(Job, job_id)
+            if current is None:
+                return None
+            session.refresh(current)  # see updates committed by the worker
+            return JobRead.model_validate(current).model_dump(mode="json")
+
+    return StreamingResponse(
+        stream_job_events(read_state),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
