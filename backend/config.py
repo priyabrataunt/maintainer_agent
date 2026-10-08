@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     # "hash" = deterministic local embeddings for dev/tests; "openai" = real embeddings.
     embedding_provider: str = "hash"
     openai_embedding_model: str = "text-embedding-3-small"
+    # Minimum cosine similarity for a chunk to count as relevant; tune with the 5.16 eval.
+    retrieval_min_score: float = 0.2
     test_database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test"
 
 

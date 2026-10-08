@@ -4,7 +4,7 @@ A tiny-feature build sequence mapped to the 12-Week Roadmap v3.
 
 **Workflow for every feature:** implement → see it work → write one test → commit. One commit per feature.
 
-**Current position:** Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, the retrieval stack (5.1–5.16, harness-only for 5.16) and Week 7 core (7.1–7.9, 7.11, 7.12, 7.15) complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, 4.11, 4.12, a real tool-calling adapter), 6.x RAG, 7.10, 7.13 endpoint, 7.14. Embeddings use a local hash embedder until an OpenAI key is set. Next: 6.1–6.6 (investigations, citations).
+**Current position:** Weeks 1–2, 3.1–3.13, 3.17–3.19, 4.3–4.10, 4.13, 4.14, the retrieval stack (5.1–5.16, harness-only for 5.16) and Week 7 core (7.1–7.9, 7.11, 7.12, 7.15) complete. Pending: Docker (3.14–3.16), deploy (3.20–3.22), real LLM calls (4.1, 4.2, 4.11, 4.12, a real tool-calling adapter), 6.7–6.14, 7.10, 7.13 endpoint, 7.14. Embeddings use a local hash embedder until an OpenAI key is set. Investigations (6.1–6.6) are done. Next: 6.8 duplicate finder, 6.11–6.13 multi-turn and compaction.
 
 ---
 
@@ -135,15 +135,15 @@ Flagship domain: **issue triage for maintainers**. Not generic chat-with-PDF.
 
 ## Week 6 — RAG + first milestone
 
-- [ ] **6.1 `investigations` table**
-- [ ] **6.2 Investigation endpoint** — `POST /repositories/{id}/investigations`: retrieve → prompt → answer.
-- [ ] **6.3 Citations in the prompt** — answers must cite `[#123]`.
-- [ ] **6.4 `citations` table** — parse and store them.
-- [ ] **6.5 Reject invented citations** — anything not in the retrieved set.
-- [ ] **6.6 "No relevant result"** — below a score threshold, answer without calling the LLM.
+- [x] **6.1 `investigations` table**
+- [x] **6.2 Investigation endpoint** — `POST /repositories/{id}/investigations`: retrieve → prompt → answer.
+- [x] **6.3 Citations in the prompt** — answers must cite `[#123]`.
+- [x] **6.4 `citations` table** — parse and store them.
+- [x] **6.5 Reject invented citations** — anything not in the retrieved set.
+- [x] **6.6 "No relevant result"** — below a score threshold, answer without calling the LLM.
 - [ ] **6.7 Reranking** — retrieve 20, rerank to 5, compare hit@5 against 5.16.
 - [ ] **6.8 Duplicate-issue finder** — new issue text in, similar issues + reasons out. **This is the demo feature.**
-- [ ] **6.9 Prompt-injection mitigation** — delimit issue text as data, validate output, test with an issue saying "ignore previous instructions."
+- [ ] **6.9 Prompt-injection mitigation** — delimit issue text as data, validate output, test with an issue saying "ignore previous instructions." (Partly done: sources and question are delimited as data, the system prompt says so, and citations are validated. Still needs an end-to-end test against a real model.)
 - [ ] **6.10 Name the OWASP items** — LLM01 (Prompt Injection), LLM06 (Excessive Agency).
 - [ ] **6.11 Multi-turn** — store messages so users can ask follow-ups.
 - [ ] **6.12 Compaction** — when history exceeds budget, summarize older turns into a compact state block.
