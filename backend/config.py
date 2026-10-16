@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     github_token: SecretStr
     github_client_id: str
     github_client_secret: SecretStr
+    github_redirect_uri: str = "http://localhost:8000/auth/callback"
     database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer"
     test_database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test"
 
