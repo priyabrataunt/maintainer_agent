@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     github_client_id: str
     github_client_secret: SecretStr
     github_redirect_uri: str = "http://localhost:8000/auth/callback"
+    jwt_secret_key: SecretStr
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 60 * 24
     database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer"
     test_database_url: str = "postgresql+psycopg://maintainer:maintainer@localhost:5432/maintainer_test"
 

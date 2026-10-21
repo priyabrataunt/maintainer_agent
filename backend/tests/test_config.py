@@ -13,6 +13,9 @@ def _set_required_env(monkeypatch, **overrides):
         "GITHUB_CLIENT_SECRET",
         overrides.get("github_client_secret", "client_secret_from_env"),
     )
+    monkeypatch.setenv(
+        "JWT_SECRET_KEY", overrides.get("jwt_secret_key", "jwt_secret_from_env")
+    )
 
 
 def test_reads_token_from_environment(monkeypatch):
